@@ -18,7 +18,7 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    background-color: #fff;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -28,4 +28,40 @@ body {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.navbar-brand {
+    font-weight: 700;
+    color: #0d6efd !important;
+}
+.nav-link {
+    font-weight: 500;
+    color: #343a40 !important;
+}
+.nav-link:hover {
+    color: #0d6efd !important;
+}
+
+.container main {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+footer {
+    background-color: #ffffff;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+footer a {
+    text-decoration: none;
+    color: #0d6efd;
+}
+footer a:hover {
+    text-decoration: underline;
 }
