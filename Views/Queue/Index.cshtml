@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "My Queues";
+}
+
+<h1 class="mb-4">My Queues</h1>
+
+<a class="btn btn-primary mb-3" asp-action="Create">Create New Queue</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Avg. Service Time</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Auto Service – Oil Change</td>
+            <td><span class="badge bg-success">Open</span></td>
+            <td>15 min</td>
+            <td>
+                <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="1">View</a>
+                <a class="btn btn-sm btn-warning" asp-action="Edit" asp-route-id="1">Edit</a>
+                <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="1">Delete</a>
+            </td>
+        </tr>
+    </tbody>
+</table>

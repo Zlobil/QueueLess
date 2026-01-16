@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Create Queue";
+}
+
+<h1 class="mb-4">Create a New Queue</h1>
+
+<form>
+    <div class="mb-3">
+        <label class="form-label">Queue Name</label>
+        <input class="form-control" placeholder="e.g. Auto Service – Oil Change" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Average Service Time (minutes)</label>
+        <input type="number" class="form-control" />
+    </div>
+
+    <button class="btn btn-success">Create Queue</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+</form>

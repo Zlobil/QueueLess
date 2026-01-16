@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Active Queues";
+}
+
+<h1 class="mb-4">Active Queues</h1>
+
+<ul class="list-group">
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        Auto Service – Oil Change
+        <a asp-controller="Queue" asp-action="Public" asp-route-id="1" class="btn btn-sm btn-primary">View</a>
+    </li>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        Barber Shop
+        <a asp-controller="Queue" asp-action="Public" asp-route-id="2" class="btn btn-sm btn-primary">View</a>
+    </li>
+</ul>

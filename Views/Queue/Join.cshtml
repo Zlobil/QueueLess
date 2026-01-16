@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Join Queue";
+}
+
+<h1 class="mb-4">Join Queue</h1>
+
+<form asp-action="Waiting">
+    <div class="mb-3">
+        <label class="form-label">Your Name</label>
+        <input class="form-control" placeholder="Enter your name" />
+    </div>
+
+    <button class="btn btn-success">Join</button>
+    <a asp-action="Public" class="btn btn-secondary ms-2">Cancel</a>
+</form>
