@@ -1,4 +1,4 @@
-namespace QueueLess.Models
+namespace QueueLess.ViewModels
 {
     public class ErrorViewModel
     {

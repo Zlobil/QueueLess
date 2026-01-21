@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using QueueLess.Models;
+using QueueLess.ViewModels;
 
 namespace QueueLess.Controllers
 {
