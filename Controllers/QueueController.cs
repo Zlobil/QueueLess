@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QueueLess.Data;
 using QueueLess.ViewModels;
 
@@ -37,12 +38,44 @@ namespace QueueLess.Controllers
         {
             return View();
         }
-        
-        public IActionResult Details()
+
+        public IActionResult Details(int id)
         {
-            return View();
+            var queue = context.Queues
+                .Include(q => q.QueueEntries)
+                .FirstOrDefault(q => q.Id == id);
+
+            if (queue == null)
+            {
+                return NotFound();
+            }
+
+            var entries = queue.QueueEntries
+                .OrderBy(e => e.JoinedOn)
+                .Select((e, index) => new QueueEntryViewModel
+                {
+                    EntryId = e.Id,
+                    Position = index + 1,
+                    ClientName = e.ClientName,
+                    JoinedOn = e.JoinedOn
+                })
+                .ToList();
+
+            var model = new QueueDetailsViewModel
+            {
+                QueueId = queue.Id,
+                Name = queue.Name,
+                Description = queue.Description,
+                IsOpen = queue.IsOpen,
+                AverageServiceTimeMinutes = queue.AverageServiceTimeMinutes,
+                CreatedOn = queue.CreatedOn,
+                WaitingCount = entries.Count,
+                Entries = entries
+            };
+
+            return View(model);
         }
-        
+
         public IActionResult Edit()
         {
             return View();
@@ -77,7 +110,7 @@ namespace QueueLess.Controllers
         {
             var queue = context.Queues
                 .Where(q => q.Id == id)
-                .Select(q => new PublicQueueViewModel
+                .Select(q => new QueuePublicViewModel
                 {
                     QueueId = q.Id,
                     Name = q.Name,

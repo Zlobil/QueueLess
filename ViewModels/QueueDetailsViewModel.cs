@@ -1,6 +1,6 @@
 ﻿namespace QueueLess.ViewModels
 {
-    public class PublicQueueViewModel
+    public class QueueDetailsViewModel
     {
         public int QueueId { get; set; }
 
@@ -12,8 +12,11 @@
 
         public int AverageServiceTimeMinutes { get; set; }
 
+        public DateTime CreatedOn { get; set; }
+
         public int WaitingCount { get; set; }
 
-        public int EstimatedWaitingTimeMinutes { get; set; }
+        public IEnumerable<QueueEntryViewModel> Entries { get; set; }
+            = new List<QueueEntryViewModel>();
     }
 }

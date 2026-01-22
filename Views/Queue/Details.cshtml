@@ -1,47 +1,57 @@
-﻿@{
+﻿@model QueueLess.ViewModels.QueueDetailsViewModel
+
+@{
     ViewData["Title"] = "Queue Dashboard";
 }
 
+<h1 class="mb-3">@Model.Name</h1>
 
-<h1 class="mb-3">Auto Service – Oil Change</h1>
+@if (!string.IsNullOrWhiteSpace(Model.Description))
+{
+    <p class="text-muted">@Model.Description</p>
+}
 
 <p>
-    Status: <span class="badge bg-success">Open</span><br /><br />
-    Average service time: <strong>15 minutes</strong><br />
-    Created on: <strong>18.01.2026</strong>
+    Status: <span class="badge @(Model.IsOpen ? "bg-success" : "bg-danger")">@(Model.IsOpen ? "Open" : "Closed")</span>
+    <br /><br />
+    Average service time: <strong>@Model.AverageServiceTimeMinutes minutes</strong>
+    <br />
+    Created on: <strong>@Model.CreatedOn.ToString("dd.MM.yyyy")</strong>
 </p>
 
 <hr />
 
-<h4 class="mb-3">Waiting clients 3</h4>
+<h4 class="mb-3">Waiting clients (@Model.WaitingCount)</h4>
 
-<table class="table table-bordered table-hover align-middle">
-    <thead class="table-light">
-        <tr>
-            <th>#</th>
-            <th>Client</th>
-            <th>Joined On</th>
-            <th class="text-center">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>#12</td>
-            <td>Stoycho</td>
-            <td>11:14</td>
-            <td class="text-center"><a asp-action="RemoveEntry" asp-route-entryId="1" class="btn btn-sm btn-outline-danger">Remove</a></td>
-        </tr>
-        <tr>
-            <td>#13</td>
-            <td>Maria</td>
-            <td>12:14</td>
-            <td class="text-center"><a asp-action="RemoveEntry" asp-route-entryId="1" class="btn btn-sm btn-outline-danger">Remove</a></td>
-        </tr>
-        <tr>
-            <td>#14</td>
-            <td>Georgi</td>
-            <td>13:14</td>
-            <td class="text-center"><a asp-action="RemoveEntry" asp-route-entryId="1" class="btn btn-sm btn-outline-danger">Remove</a></td>
-        </tr>
-    </tbody>
-</table>
+@if (!Model.Entries.Any())
+{
+    <p class="text-muted">No clients in queue.</p>
+}
+else
+{
+    <table class="table table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Client</th>
+                <th>Joined On</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entry in Model.Entries)
+            {
+                <tr>
+                    <td>#@entry.Position</td>
+                    <td>@entry.ClientName</td>
+                    <td>@entry.JoinedOn.ToString("HH:mm")</td>
+                    <td class="text-center">
+                        <a asp-action="RemoveEntry" asp-route-entryId="@entry.EntryId" class="btn btn-sm btn-outline-danger">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
