@@ -2,26 +2,46 @@
     ViewData["Title"] = "Queue Dashboard";
 }
 
+
 <h1 class="mb-3">Auto Service – Oil Change</h1>
 
 <p>
-    Status: <span class="badge bg-success">Open</span><br />
-    Average service time: 15 minutes
+    Status: <span class="badge bg-success">Open</span><br /><br />
+    Average service time: <strong>15 minutes</strong><br />
+    Created on: <strong>18.01.2026</strong>
 </p>
 
 <hr />
 
-<h4>Now Serving</h4>
-<p class="fs-4 fw-bold">#12 – Stoycho</p>
+<h4 class="mb-3">Waiting clients 3</h4>
 
-<div class="mb-4">
-    <button class="btn btn-success me-2">Serve Next</button>
-    <button class="btn btn-outline-danger">Skip</button>
-</div>
-
-<h4>Waiting</h4>
-<ul>
-    <li>#13 – Maria</li>
-    <li>#14 – Georgi</li>
-    <li>#15 – Ivan</li>
-</ul>
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>#</th>
+            <th>Client</th>
+            <th>Joined On</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>#12</td>
+            <td>Stoycho</td>
+            <td>11:14</td>
+            <td class="text-center"><a asp-action="RemoveEntry" asp-route-entryId="1" class="btn btn-sm btn-outline-danger">Remove</a></td>
+        </tr>
+        <tr>
+            <td>#13</td>
+            <td>Maria</td>
+            <td>12:14</td>
+            <td class="text-center"><a asp-action="RemoveEntry" asp-route-entryId="1" class="btn btn-sm btn-outline-danger">Remove</a></td>
+        </tr>
+        <tr>
+            <td>#14</td>
+            <td>Georgi</td>
+            <td>13:14</td>
+            <td class="text-center"><a asp-action="RemoveEntry" asp-route-entryId="1" class="btn btn-sm btn-outline-danger">Remove</a></td>
+        </tr>
+    </tbody>
+</table>

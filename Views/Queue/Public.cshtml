@@ -2,12 +2,43 @@
     ViewData["Title"] = "Public Queue";
 }
 
-<h1 class="mb-3">Auto Service – Oil Change</h1>
+<div class="text-center mb-5">
+    <h1 class="display-5 fw-bold">Auto Service – Oil Change</h1>
+    <p class="text-muted mt-3 col-lg-8 mx-auto">
+        Standard oil change and basic vehicle inspection.
+    </p>
+</div>
 
-<p>
-    Status: <span class="badge bg-success">Open</span><br />
-    People waiting: 4<br />
-    Average service time: 15 minutes
-</p>
+<div class="row text-center mb-4">
+    <div class="col-md-3">
+        <div class="fw-semibold">Status</div>
+        <span class="badge bg-success">Open</span>
+    </div>
 
-<a class="btn btn-primary mt-3"asp-action="Join">Join Queue</a>
+    <div class="col-md-3">
+        <div class="fw-semibold">Waiting</div>
+        <span class="fs-5">3 people</span>
+    </div>
+
+    <div class="col-md-3">
+        <div class="fw-semibold">Avg. Service Time</div>
+        <span class="fs-5">30 min</span>
+    </div>
+
+    <div class="col-md-3">
+        <div class="fw-semibold">Estimated Wait</div>
+        <span class="fs-5">130 min</span>
+    </div>
+</div>
+
+<hr />
+
+<div class="text-center mt-4">
+    <p class="text-muted">
+        <strong>................</strong><br />
+        ............
+    </p>
+    
+    <a asp-action="Join" asp-route-id="1" class="btn btn-primary btn-lg mt-3">Join Queue</a>
+
+</div>

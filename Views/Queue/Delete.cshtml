@@ -2,12 +2,21 @@
     ViewData["Title"] = "Delete Queue";
 }
 
-<h1 class="text-danger mb-3">Delete Queue</h1>
+<h1 class="mb-4 text-danger">Delete Queue</h1>
 
-<p>
-    Are you sure you want to delete the queue
-    <strong>Auto Service – Oil Change</strong>?
-</p>
+<div class="alert alert-warning">
+    Are you sure you want to delete this queue?
+    This action cannot be undone.
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <strong>Auto Service – Oil Change</strong>
+        <p class="text-muted mb-0">
+            Standard oil change and basic vehicle inspection.
+        </p>
+    </div>
+</div>
 
 <form>
     <button class="btn btn-danger">Delete</button>
