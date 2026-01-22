@@ -1,44 +1,52 @@
-﻿@{
+﻿@model QueueLess.ViewModels.PublicQueueViewModel
+
+@{
     ViewData["Title"] = "Public Queue";
 }
 
 <div class="text-center mb-5">
-    <h1 class="display-5 fw-bold">Auto Service – Oil Change</h1>
-    <p class="text-muted mt-3 col-lg-8 mx-auto">
-        Standard oil change and basic vehicle inspection.
-    </p>
+    <h1 class="display-5 fw-bold">@Model.Name</h1>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Description))
+    {
+        <p class="text-muted mt-3 col-lg-8 mx-auto">@Model.Description</p>
+    }
 </div>
 
 <div class="row text-center mb-4">
-    <div class="col-md-3">
+    <div class="col-md-3 mb-3 mb-md-0">
         <div class="fw-semibold">Status</div>
-        <span class="badge bg-success">Open</span>
+        <span class="badge @(Model.IsOpen ? "bg-success" : "bg-danger")">
+            @(Model.IsOpen ? "Open" : "Closed")
+        </span>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-3 mb-3 mb-md-0">
         <div class="fw-semibold">Waiting</div>
-        <span class="fs-5">3 people</span>
+        <span class="fs-5">@Model.WaitingCount people</span>
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-3 mb-3 mb-md-0">
         <div class="fw-semibold">Avg. Service Time</div>
-        <span class="fs-5">30 min</span>
+        <span class="fs-5">@Model.AverageServiceTimeMinutes min</span>
     </div>
 
     <div class="col-md-3">
         <div class="fw-semibold">Estimated Wait</div>
-        <span class="fs-5">130 min</span>
+        <span class="fs-5">@Model.EstimatedWaitingTimeMinutes min</span>
     </div>
 </div>
 
 <hr />
 
 <div class="text-center mt-4">
-    <p class="text-muted">
-        <strong>................</strong><br />
-        ............
-    </p>
-    
-    <a asp-action="Join" asp-route-id="1" class="btn btn-primary btn-lg mt-3">Join Queue</a>
-
+    @if (Model.IsOpen)
+    {
+        <p class="text-muted"><strong>Queue is open</strong><br />You can join and wait remotely.</p>
+        <a asp-action="Join" asp-route-id="@Model.QueueId" class="btn btn-primary btn-lg mt-3">Join Queue</a>
+    }
+    else
+    {
+        <p class="text-muted"><strong>Queue is currently closed</strong><br />Please check back later.</p>
+    }
 </div>

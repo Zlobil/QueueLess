@@ -73,10 +73,28 @@ namespace QueueLess.Controllers
             return View(queues);
         }
 
-        public IActionResult Public(int id = 1)
+        public IActionResult Public(int id)
         {
-            return View();
+            var queue = context.Queues
+                .Where(q => q.Id == id)
+                .Select(q => new PublicQueueViewModel
+                {
+                    QueueId = q.Id,
+                    Name = q.Name,
+                    Description = q.Description,
+                    IsOpen = q.IsOpen,
+                    AverageServiceTimeMinutes = q.AverageServiceTimeMinutes,
+                    WaitingCount = q.QueueEntries.Count(),
+                    EstimatedWaitingTimeMinutes =
+                        q.QueueEntries.Count() * q.AverageServiceTimeMinutes
+                })
+                .FirstOrDefault();
+
+            if (queue == null) return NotFound();
+
+            return View(queue);
         }
+
 
         public IActionResult Join(int id = 1)
         {
