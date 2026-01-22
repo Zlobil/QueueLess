@@ -15,7 +15,20 @@ namespace QueueLess.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var queues = context.Queues
+            .OrderByDescending(q => q.CreatedOn)
+            .Select(q => new MyQueuesViewModel
+            {
+                Id = q.Id,
+                Name = q.Name,
+                Description = q.Description,
+                IsOpen = q.IsOpen,
+                CreatedOn = q.CreatedOn,
+                AverageServiceTimeMinutes = q.AverageServiceTimeMinutes
+            })
+            .ToList();
+
+            return View(queues);
         }
 
         // Business side

@@ -1,13 +1,12 @@
-﻿@{
+﻿@model IEnumerable<QueueLess.ViewModels.MyQueuesViewModel>
+
+@{
     ViewData["Title"] = "My Queues";
 }
 
 <h1 class="mb-4">My Queues</h1>
 
-<a class="btn btn-primary mb-3"
-   asp-action="Create">
-    Create New Queue
-</a>
+<a class="btn btn-primary mb-3" asp-action="Create">Create New Queue</a>
 
 <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
@@ -21,29 +20,41 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>
-                    <strong>Auto Service – Oil Change</strong>
-                    <div class="text-muted small">
-                        Standard oil change and basic inspection
-                    </div>
-                </td>
+            @foreach (var queue in Model)
+            {
+                <tr>
+                    <td>
+                        <strong>@queue.Name</strong>
+                        @if (!string.IsNullOrWhiteSpace(queue.Description))
+                        {
+                            <div class="text-muted small">@queue.Description</div>
+                        }
+                    </td>
 
-                <td>
-                    <span class="badge bg-success">Open</span>
-                </td>
+                    <td>
+                        <span class="badge @(queue.IsOpen ? "bg-success" : "bg-danger")">
+                            @(queue.IsOpen ? "Open" : "Closed")
+                        </span>
+                    </td>
 
-                <td>12 Jan 2026</td>
-                <td>30 min</td>
+                    <td>@queue.CreatedOn.ToString("dd MMM yyyy")</td>
 
-                <td class="text-center">
-                    <div class="d-flex flex-column flex-md-row gap-1 justify-content-center">
-                        <a class="btn btn-sm btn-outline-info me-1" asp-action="Details" asp-route-id="1">View</a>
-                        <a class="btn btn-sm btn-outline-warning me-1" asp-action="Edit" asp-route-id="1">Edit</a>
-                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="1">Delete</a>
-                    </div>
-                </td>
-            </tr>
+                    <td>@queue.AverageServiceTimeMinutes min</td>
+
+                    <td class="text-center">
+                        <div class="d-flex flex-column flex-md-row gap-1 justify-content-center">
+                            <a class="btn btn-sm btn-outline-info" asp-action="Details" asp-route-id="@queue.Id">View</a>
+                            <a class="btn btn-sm btn-outline-warning" asp-action="Edit" asp-route-id="@queue.Id">Edit</a>
+                            <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@queue.Id">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>
+
+@if (!Model.Any())
+{
+    <p class="text-muted mt-3">You haven't created any queues yet.</p>
+}
