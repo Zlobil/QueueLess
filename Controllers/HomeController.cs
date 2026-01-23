@@ -1,9 +1,9 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using QueueLess.ViewModels;
-
 namespace QueueLess.Controllers
 {
+    using System.Diagnostics;
+    using Microsoft.AspNetCore.Mvc;
+    using QueueLess.ViewModels;
+
     public class HomeController : Controller
     {
         public IActionResult Index()

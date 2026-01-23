@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QueueLess.Data;
-using QueueLess.ViewModels;
-
-namespace QueueLess.Controllers
+﻿namespace QueueLess.Controllers
 {
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using QueueLess.Data;
+    using QueueLess.ViewModels;
+
     public class QueueController : Controller
     {
         private readonly ApplicationDbContext context;

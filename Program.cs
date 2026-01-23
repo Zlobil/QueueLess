@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using QueueLess.Data;
-
 namespace QueueLess
 {
+    using Microsoft.EntityFrameworkCore;
+    using QueueLess.Data;
+
     public class Program
     {
         public static void Main(string[] args)

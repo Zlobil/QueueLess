@@ -1,15 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using QueueLess.Models;
-
-namespace QueueLess.Data
+﻿namespace QueueLess.Data
 {
+    using QueueLess.Models;
+    using Microsoft.EntityFrameworkCore;
+
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Queue> Queues { get; set; }
-        public DbSet<ServiceLocation> ServiceLocations { get; set; }
-        public DbSet<QueueEntry> QueueEntries { get; set; }
+        public virtual DbSet<Queue> Queues { get; set; } = null!;
+        public virtual DbSet<ServiceLocation> ServiceLocations { get; set; } = null!;
+        public virtual DbSet<QueueEntry> QueueEntries { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
