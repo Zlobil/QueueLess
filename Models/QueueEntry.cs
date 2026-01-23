@@ -1,16 +1,17 @@
-﻿using QueueLess.Common;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace QueueLess.Models
+﻿namespace QueueLess.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    using static Common.EntityValidation.QueueEntry;
+
     public class QueueEntry
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(EntityValidation.QueueEntry.ClientNameMaxLength)]
+        [MaxLength(ClientNameMaxLength)]
         public string ClientName { get; set; } = null!;
 
         [Required]

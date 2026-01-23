@@ -1,21 +1,22 @@
-﻿using QueueLess.Common;
-using System.ComponentModel.DataAnnotations;
-
-namespace QueueLess.Models
+﻿namespace QueueLess.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
+    using static Common.EntityValidation.ServiceLocation;
+
     public class ServiceLocation
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(EntityValidation.ServiceLocation.NameMaxLength)]
+        [MaxLength(NameMaxLength)]
         public string Name { get; set; } = null!;
 
-        [MaxLength(EntityValidation.ServiceLocation.AddressMaxLength)]
+        [MaxLength(AddressMaxLength)]
         public string? Address { get; set; }
 
-        [MaxLength(EntityValidation.ServiceLocation.PhoneNumberMaxLength)]
+        [MaxLength(PhoneNumberMaxLength)]
         public string? PhoneNumber { get; set; }
 
         public DateTime CreatedOn { get; set; } = DateTime.UtcNow;

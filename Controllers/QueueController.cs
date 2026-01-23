@@ -45,10 +45,7 @@ namespace QueueLess.Controllers
                 .Include(q => q.QueueEntries)
                 .FirstOrDefault(q => q.Id == id);
 
-            if (queue == null)
-            {
-                return NotFound();
-            }
+            if (queue == null) return NotFound();
 
             var entries = queue.QueueEntries
                 .OrderBy(e => e.JoinedOn)
@@ -114,12 +111,11 @@ namespace QueueLess.Controllers
                 {
                     QueueId = q.Id,
                     Name = q.Name,
-                    Description = q.Description,
+                    Description = q.Description, 
                     IsOpen = q.IsOpen,
                     AverageServiceTimeMinutes = q.AverageServiceTimeMinutes,
                     WaitingCount = q.QueueEntries.Count(),
-                    EstimatedWaitingTimeMinutes =
-                        q.QueueEntries.Count() * q.AverageServiceTimeMinutes
+                    EstimatedWaitingTimeMinutes = q.QueueEntries.Count() * q.AverageServiceTimeMinutes
                 })
                 .FirstOrDefault();
 
