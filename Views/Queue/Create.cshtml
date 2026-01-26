@@ -1,39 +1,44 @@
-﻿@{
+﻿@model QueueCreateViewModel
+
+@{
     ViewData["Title"] = "Create a New Queue";
 }
 
 <h1 class="mb-4">Create a New Queue</h1>
-
-<form>
+<form asp-action="Create" method="post">
+    <partial name="_ValidationSummaryPartial" />
     <div class="mb-3">
-        <label class="form-label">Service Location</label>
-        <select class="form-select">
-            <option selected disabled>Select service location</option>
-            <option>AutoFix Garage</option>
-            <option>City Auto Service</option>
+        <label asp-for="ServiceLocationId" class="form-label"></label>
+        <select asp-for="ServiceLocationId"
+                class="form-select"
+                asp-items="@(new SelectList(Model.ServiceLocations, "Id", "Name"))">
+            <option value="">Select service location</option>
         </select>
+        <span asp-validation-for="ServiceLocationId" class="text-danger"></span>
     </div>
-
     <div class="mb-3">
-        <label class="form-label">Queue Name</label>
-        <input class="form-control" placeholder="e.g. Oil Change & Maintenance" />
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
     </div>
-
     <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea class="form-control" rows="3" placeholder="Optional description of the service"></textarea>
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
     </div>
-
     <div class="mb-3">
-        <label class="form-label">Average Service Time (minutes)</label>
-        <input type="number" class="form-control" min="1" max="240" />
+        <label asp-for="AverageServiceTimeMinutes" class="form-label"></label>
+        <input asp-for="AverageServiceTimeMinutes" type="number" class="form-control" />
+        <span asp-validation-for="AverageServiceTimeMinutes" class="text-danger"></span>
     </div>
-
     <div class="form-check mb-4">
-        <input class="form-check-input" type="checkbox" checked />
-        <label class="form-check-label">Queue is open</label>
+        <input asp-for="IsOpen" class="form-check-input" />
+        <label asp-for="IsOpen" class="form-check-label"></label>
     </div>
-
-    <button class="btn btn-success">Create Queue</button>
+    <button type="submit" class="btn btn-success">Create Queue</button>
     <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

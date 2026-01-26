@@ -3,6 +3,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using QueueLess.Data;
+    using QueueLess.Models;
     using QueueLess.ViewModels;
 
     public class QueueController : Controller
@@ -14,6 +15,7 @@
             this.context = context;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             var queues = context.Queues
@@ -34,13 +36,71 @@
 
         // Business side
 
+        [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var model = new QueueCreateViewModel
+            {
+                ServiceLocations = context.ServiceLocations
+                .OrderBy(sl => sl.Name)
+                .Select(sl => new ServiceLocationSelectViewModel
+                {
+                    Id = sl.Id,
+                    Name = sl.Name
+                })
+                .ToList()
+            };
+
+            return View(model);
         }
 
+        [HttpPost]
+        public IActionResult Create(QueueCreateViewModel model)
+        {
+            var serviceLocationExists = context.ServiceLocations
+                .Any(sl => sl.Id == model.ServiceLocationId);
+            if (!serviceLocationExists)
+            {
+                ModelState.AddModelError(
+                    nameof(model.ServiceLocationId),
+                    "Invalid service location."
+                );
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.ServiceLocations = context.ServiceLocations
+                    .Select(sl => new ServiceLocationSelectViewModel
+                    {
+                        Id = sl.Id,
+                        Name = sl.Name
+                    })
+                    .ToList();
+
+                return View(model);
+            }
+
+            var queue = new Queue
+            {
+                Name = model.Name,
+                Description = model.Description,
+                AverageServiceTimeMinutes = model.AverageServiceTimeMinutes,
+                IsOpen = model.IsOpen,
+                CreatedOn = DateTime.UtcNow,
+                ServiceLocationId = model.ServiceLocationId
+            };
+
+            context.Queues.Add(queue);
+            context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
         public IActionResult Details(int id)
         {
+            if (id <= 0) return BadRequest();
+
             var queue = context.Queues
                 .Include(q => q.QueueEntries)
                 .FirstOrDefault(q => q.Id == id);
@@ -73,18 +133,33 @@
             return View(model);
         }
 
-        public IActionResult Edit()
+        [HttpGet]
+        public IActionResult Edit(int id)
         {
             return View();
         }
-        
-        public IActionResult Delete()
+
+        [HttpPost]
+        public IActionResult Edit(Queue input)
+        {
+            return Json(input);
+        }
+
+        [HttpGet]
+        public IActionResult Delete(int id)
         {
             return View();
         }
-        
+
+        [HttpPost]
+        public IActionResult Delete(Queue input)
+        {
+            return Json(input);
+        }
+
         // Client side
 
+        [HttpGet]
         public IActionResult Active()
         {
             var queues = context.Queues
@@ -103,8 +178,11 @@
             return View(queues);
         }
 
+        [HttpGet]
         public IActionResult Public(int id)
         {
+            if (id <= 0) return BadRequest();
+
             var queue = context.Queues
                 .Where(q => q.Id == id)
                 .Select(q => new QueuePublicViewModel
@@ -124,15 +202,28 @@
             return View(queue);
         }
 
-
-        public IActionResult Join(int id = 1)
+        [HttpGet]
+        public IActionResult Join(int id)
         {
             return View();
         }
 
-        public IActionResult Waiting()
+        [HttpPost]
+        public IActionResult Join(Queue input)
+        {
+            return Json(input);
+        }
+
+        [HttpGet]
+        public IActionResult Waiting(int id)
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Waiting(Queue input)
+        {
+            return Json(input);
         }
 
     }
