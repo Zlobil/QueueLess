@@ -148,13 +148,42 @@
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            return View();
+            var queue = context.Queues
+                .Where(q => q.Id == id)
+                .Select(q => new QueueDeleteViewModel
+                {
+                    Id = q.Id,
+                    Name = q.Name,
+                    Description = q.Description
+                })
+                .FirstOrDefault();
+            
+            if (queue == null) return NotFound();
+            
+            return View(queue);
         }
 
         [HttpPost]
-        public IActionResult Delete(Queue input)
+        public IActionResult Delete(QueueDeleteViewModel model)
         {
-            return Json(input);
+            var queue = context.Queues
+                .FirstOrDefault(q => q.Id == model.Id);
+
+            if (queue == null) return NotFound();
+
+            bool hasEntries = context.QueueEntries
+                .Any(e => e.QueueId == queue.Id);
+
+            if (hasEntries)
+            {
+                ModelState.AddModelError(string.Empty, "Queue cannot be deleted because it has active entries.");
+                return View(model);
+            }
+
+            context.Queues.Remove(queue);
+            context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // Client side
