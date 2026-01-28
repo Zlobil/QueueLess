@@ -8,59 +8,65 @@ This project is developed as part of the **ASP.NET Fundamentals** course at Soft
 
 ## Project Idea
 
-QueueLess focuses on solving a common real-world problem – long waiting lines for services such as auto repair, salons, clinics, and public offices.
+QueueLess addresses a common real-world problem – long waiting lines for services such as auto repair shops, beauty salons, clinics, and public offices.
 
-Instead of waiting on-site, clients can:
+Clients can:
 - join a virtual queue via a link or QR code
 - track their position and estimated waiting time
-- arrive only when their turn is approaching
+- avoid waiting on-site
 
 Businesses can:
-- create and manage queues
-- advance or skip clients
+- create and manage service queues
+- view waiting clients
 - control service flow more efficiently
 
 ---
 
 ## Current State (ASP.NET Fundamentals)
 
-At this stage, the project focuses on **architecture, navigation, and user flow**, without database persistence yet.
+At this stage, the project includes a working database layer and real data flow, while continuing to focus on clean architecture and correct user experience.
 
 ### Implemented Features
 - ASP.NET Core MVC architecture
+- Entity Framework Core with SQL Server
+- Code-first approach with migrations
+- Seeded database with demo data
 - Shared layout with navigation and footer
-- Public and business-oriented pages
-- QueueController with all required actions
-- Fully navigable UI skeleton
+- Business and client-facing pages
+- ViewModels with validation
+- Basic CRUD operations for queues
 
 ### Pages Implemented
 - **Home** – project overview and concept explanation
 - **My Queues** – business view for managing owned queues
-- **Create Queue** – queue creation page (UI only)
+- **Create Queue** – functional queue creation form
+- **Edit / Delete Queue** – queue management pages
 - **Queue Details** – business dashboard view
-- **Active Queues** – demo page listing available queues
-- **Public Queue** – client-facing queue page
+- **Active Queues** – lists available queues from the database
+- **Public Queue** – client-facing queue details page
 - **Join Queue** – client joins a queue
 - **Waiting Page** – client tracks queue position
 
 > Note:  
-> The *Active Queues* page is currently used as a demo and fallback entry point.  
+> The *Active Queues* page currently serves as a demo entry point.
 > In a real-world scenario, clients would usually access queues via direct links or QR codes.
 
 ---
 
 ## Planned Features
-- Entity Framework Core
-- SQL Server database
 - Authentication and authorization
-- Real-time queue updates (ASP.NET Advanced)
-- Improved client entry (queue codes / QR scanning)
+- Ownership enforcement for queues
+- Improved client entry (QR codes / access codes)
+- Advanced waiting time calculations
 
 ---
 
 ## How to Run
+How to Run
+
 1. Clone the repository
 2. Open the solution in Visual Studio
-3. Run the project using the default configuration
+3. Apply migrations and update the database
+4. Run the project using the default configuration
 
 No additional configuration is required at this stage.
