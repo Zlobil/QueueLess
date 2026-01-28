@@ -5,8 +5,10 @@
 }
 
 <h1 class="mb-4">Create a New Queue</h1>
+
+<partial name="_ValidationSummaryPartial" />
+
 <form asp-action="Create" method="post">
-    <partial name="_ValidationSummaryPartial" />
     <div class="mb-3">
         <label asp-for="ServiceLocationId" class="form-label"></label>
         <select asp-for="ServiceLocationId"

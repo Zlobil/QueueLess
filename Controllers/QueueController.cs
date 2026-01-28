@@ -136,13 +136,41 @@
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            return View();
+            var model = context.Queues
+                .Where(q => q.Id == id)
+                .Select(q => new QueueEditViewModel
+                {
+                    Id = q.Id,
+                    Name = q.Name,
+                    Description = q.Description,
+                    AverageServiceTimeMinutes = q.AverageServiceTimeMinutes,
+                    IsOpen = q.IsOpen
+                })
+                .FirstOrDefault();
+            
+            if (model == null) return NotFound();
+            
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult Edit(Queue input)
+        public IActionResult Edit(QueueEditViewModel model)
         {
-            return Json(input);
+            if (!ModelState.IsValid) return View(model);
+
+            var queue = context.Queues
+                .FirstOrDefault(q => q.Id == model.Id);
+
+            if (queue == null) return NotFound();
+
+            queue.Name = model.Name;
+            queue.Description = model.Description;
+            queue.AverageServiceTimeMinutes = model.AverageServiceTimeMinutes;
+            queue.IsOpen = model.IsOpen;
+
+            context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
