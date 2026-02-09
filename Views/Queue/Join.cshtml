@@ -1,4 +1,6 @@
-﻿@{
+﻿@model QueueJoinViewModel
+
+@{
     ViewData["Title"] = "Join Queue";
 }
 
@@ -6,15 +8,16 @@
 
 <p class="text-muted mb-4">
     You are joining:
-    <strong>Auto Service – Oil Change</strong>
+    <strong>@Model.QueueName</strong>
 </p>
 
-<form>
+<form asp-action="Join" method="post">
+    <input type="hidden" asp-for="QueueId" />
     <div class="mb-3">
         <label class="form-label">Your Name</label>
-        <input class="form-control" placeholder="Enter your name" />
+        <input class="form-control" asp-for="ClientName" />
+        <span asp-validation-for="ClientName" class="text-danger"></span>
     </div>
-
-    <button class="btn btn-success">Join Queue</button>
-    <a asp-action="Public" asp-route-id="1" class="btn btn-secondary ms-2">Cancel</a>
+    <button type="submit" class="btn btn-success">Join Queue</button>
+    <a asp-action="Public" asp-route-id="@Model.QueueId" class="btn btn-secondary ms-2">Cancel</a>
 </form>

@@ -1,26 +1,28 @@
-﻿@{
+﻿@model QueueWaitingViewModel
+
+@{
     ViewData["Title"] = "Waiting";
 }
 
 <div class="text-center mt-5">
-    <h2 class="fw-bold">Auto Service – Oil Changee</h2>
-    <p class="text-muted">............</p>
+    <h2 class="fw-bold">@Model.QueueName</h2>
+    <p class="text-muted">Please wait while we process your request</p>
 </div>
 
 <div class="row text-center mt-5">
     <div class="col-md-4">
         <div class="text-muted">Your position</div>
-        <div class="display-4 fw-bold">#14</div>
+        <div class="display-4 fw-bold">#@Model.Position</div>
     </div>
 
     <div class="col-md-4">
         <div class="text-muted">People ahead</div>
-        <div class="display-6">1</div>
+        <div class="display-6">@Model.PeopleAhead</div>
     </div>
 
     <div class="col-md-4">
         <div class="text-muted">Estimated wait</div>
-        <div class="display-6">20 min</div>
+        <div class="display-6">@Model.EstimatedWaitMinutes min</div>
     </div>
 </div>
 

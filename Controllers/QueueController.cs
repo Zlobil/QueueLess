@@ -262,25 +262,71 @@
         [HttpGet]
         public IActionResult Join(int id)
         {
-            return View();
+            if (id <= 0) return BadRequest();
+
+            var queue = context.Queues.FirstOrDefault(q => q.Id == id);
+
+            if (queue == null) return NotFound();
+
+            var model = new QueueJoinViewModel
+            {
+                QueueId = queue.Id,
+                QueueName = queue.Name
+            };
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult Join(Queue input)
+        public async Task<IActionResult> Join(QueueJoinViewModel model)
         {
-            return Json(input);
+            if (!ModelState.IsValid) return View(model);
+
+            var entry = new QueueEntry
+            {
+                QueueId = model.QueueId,
+                ClientName = model.ClientName,
+                JoinedOn = DateTime.UtcNow
+            };
+            context.QueueEntries.Add(entry);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Waiting", new { id = model.QueueId, entryId = entry.Id });
         }
 
-        [HttpGet]
-        public IActionResult Waiting(int id)
+        [HttpGet("Queue/Waiting/{id}/{entryId}")]
+        public IActionResult Waiting(int id, int entryId)
         {
-            return View();
-        }
+            if (id <= 0 || entryId <= 0) return BadRequest();
 
-        [HttpPost]
-        public IActionResult Waiting(Queue input)
-        {
-            return Json(input);
+            var queue = context.Queues
+                .Include(q => q.QueueEntries)
+                .FirstOrDefault(q => q.Id == id);
+
+            if (queue == null) return NotFound();
+
+            var entry = queue.QueueEntries.FirstOrDefault(e => e.Id == entryId);
+
+            if (entry == null) return NotFound();
+            
+            var orderedEntries = queue.QueueEntries
+                .OrderBy(e => e.JoinedOn)
+                .ToList();
+
+            var position = orderedEntries.IndexOf(entry) + 1;
+
+            var ahead = position - 1;
+
+            var estimatedWait = ahead * queue.AverageServiceTimeMinutes;
+
+            var model = new QueueWaitingViewModel
+            {
+                QueueName = queue.Name,
+                Position = position,
+                PeopleAhead = ahead,
+                EstimatedWaitMinutes = estimatedWait
+            };
+
+            return View(model);
         }
 
     }
