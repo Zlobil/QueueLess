@@ -1,11 +1,11 @@
-﻿@model QueueDetailsViewModel
+﻿@using QueueLess.Models.Enums
+@model QueueDetailsViewModel
 
 @{
     ViewData["Title"] = "Queue Dashboard";
 }
 
 <h1 class="mb-3">@Model.Name</h1>
-
 @if (!string.IsNullOrWhiteSpace(Model.Description))
 {
     <p class="text-muted">@Model.Description</p>
@@ -21,37 +21,93 @@
 
 <hr />
 
-<h4 class="mb-3">Waiting clients (@Model.WaitingCount)</h4>
+<ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#waiting">Waiting (@Model.Entries.Count)</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#history">History (@Model.History.Count)</button>
+    </li>
+</ul>
 
-@if (!Model.Entries.Any())
-{
-    <p class="text-muted">No clients in queue.</p>
-}
-else
-{
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>#</th>
-                <th>Client</th>
-                <th>Joined On</th>
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var entry in Model.Entries)
-            {
-                <tr>
-                    <td>#@entry.Position</td>
-                    <td>@entry.ClientName</td>
-                    <td>@entry.JoinedOn.ToString("HH:mm")</td>
-                    <td class="text-center">
-                        <a asp-action="RemoveEntry" asp-route-entryId="@entry.EntryId" class="btn btn-sm btn-outline-danger">
-                            Remove
-                        </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="tab-content">
+    
+    <div class="tab-pane fade show active" id="waiting">
+        <h4 class="mb-3">Waiting clients</h4>
+        @if (!Model.Entries.Any())
+        {
+            <p class="text-muted">No clients in queue.</p>
+        }
+        else
+        {
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Client</th>
+                        <th>Joined</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in Model.Entries)
+                    {
+                        <tr>
+                            <td>#@entry.Position</td>
+                            <td>@entry.ClientName</td>
+                            <td>@entry.JoinedOn.ToString("HH:mm")</td>
+                            <td class="text-center">
+                                <form asp-action="Serve" method="post" class="d-inline">
+                                    <input type="hidden" name="entryId" value="@entry.EntryId" />
+                                    <button type="submit" class="btn btn-sm btn-success">Serve</button>
+                                </form>
+                                <form asp-action="Skip" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="entryId" value="@entry.EntryId" />
+                                    <button type="submit" class="btn btn-sm btn-warning">Skip</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="history">
+        <h4 class="mb-3">History</h4>
+        @if (!Model.History.Any())
+        {
+            <p class="text-muted">No history yet.</p>
+        }
+        else
+        {
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Client</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in Model.History)
+                    {
+                        <tr>
+                            <td>@h.ClientName</td>
+                            <td>
+                                <span class="badge 
+                                    @(h.Status == QueueEntryStatus.Served ? "bg-success" : 
+                                    h.Status == QueueEntryStatus.Skipped ? "bg-warning" :
+                                    "bg-secondary")">
+                                    @h.Status
+                                </span>
+                            </td>
+                            <td>@h.JoinedOn.ToString("HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+</div>

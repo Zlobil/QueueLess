@@ -4,6 +4,7 @@
     using System.ComponentModel.DataAnnotations.Schema;
 
     using static Common.EntityValidation.QueueEntry;
+    using QueueLess.Models.Enums;
 
     public class QueueEntry
     {
@@ -16,6 +17,9 @@
 
         [Required]
         public DateTime JoinedOn { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public QueueEntryStatus Status { get; set; } = QueueEntryStatus.Waiting;
 
         [Required]
         [ForeignKey(nameof(Queue))]

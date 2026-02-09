@@ -16,7 +16,8 @@
 
         public int WaitingCount { get; set; }
 
-        public IEnumerable<QueueEntryViewModel> Entries { get; set; }
-            = new List<QueueEntryViewModel>();
+        public List<QueueEntryViewModel> Entries { get; set; } = new();
+        
+        public List<QueueEntryHistoryViewModel> History { get; set; } = new();
     }
 }

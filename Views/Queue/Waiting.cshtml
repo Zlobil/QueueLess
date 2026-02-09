@@ -12,20 +12,34 @@
 <div class="row text-center mt-5">
     <div class="col-md-4">
         <div class="text-muted">Your position</div>
-        <div class="display-4 fw-bold">#@Model.Position</div>
+        <div id="pos" class="display-4 fw-bold">#@Model.Position</div>
     </div>
-
     <div class="col-md-4">
         <div class="text-muted">People ahead</div>
-        <div class="display-6">@Model.PeopleAhead</div>
+        <div id="ahead" class="display-6">@Model.PeopleAhead</div>
     </div>
-
     <div class="col-md-4">
         <div class="text-muted">Estimated wait</div>
-        <div class="display-6">@Model.EstimatedWaitMinutes min</div>
+        <div id="est" class="display-6">@Model.EstimatedWaitMinutes min</div>
     </div>
 </div>
 
 <div class="alert alert-info text-center mt-5 col-lg-6 mx-auto">
     Please stay nearby. This page updates automatically.
 </div>
+
+<script>
+    setInterval(() => {
+        fetch(`/Queue/WaitingStatus/@Model.QueueId/@Model.EntryId`)
+            .then(r => {
+                if (!r.ok) throw new Error("Request failed");
+                return r.json();
+            })
+            .then(d => {
+                document.getElementById("pos").innerText = "#" + d.position;
+                document.getElementById("ahead").innerText = d.ahead;
+                document.getElementById("est").innerText = d.estimated + " min";
+            })
+            .catch(err => console.error(err));
+    }, 5000);
+</script>

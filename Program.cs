@@ -58,6 +58,12 @@ namespace QueueLess
                 name: "queue_waiting",
                 pattern: "Queue/Waiting/{id}/{entryId}",
                 defaults: new { controller = "Queue", action = "Waiting" });
+            app.MapControllerRoute(
+                name: "queue_waiting_status",
+                pattern: "Queue/WaitingStatus/{id}/{entryId}",
+                defaults: new { controller = "Queue", action = "WaitingStatus" });
+
+
 
             app.MapRazorPages();
 
