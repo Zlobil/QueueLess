@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using QueueLess.Data;
 namespace QueueLess
 {
     using QueueLess.Data;
