@@ -24,5 +24,7 @@
         [Required]
         [ForeignKey(nameof(Queue))]
         public int QueueId { get; set; }
+
+        public Queue Queue { get; set; } = null!;
     }
 }

@@ -22,6 +22,11 @@
         [Display(Name = "Average Service Time (minutes)")]
         public int AverageServiceTimeMinutes { get; set; }
 
+        [Required]
+        [Range(MaxWaitMinutesMin, MaxWaitMinutesMax)]
+        [Display(Name = "Max wait time (minutes)")]
+        public int MaxWaitMinutes { get; set; }
+
         [Display(Name = "Queue is open")]
         public bool IsOpen { get; set; }
     }

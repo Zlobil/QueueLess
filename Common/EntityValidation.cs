@@ -15,6 +15,8 @@
             public const int DescriptionMaxLength = 500;
             public const int AverageServiceTimeMin = 1;
             public const int AverageServiceTimeMax = 240;
+            public const int MaxWaitMinutesMin = 1;
+            public const int MaxWaitMinutesMax = 240;
         }
 
         public static class QueueEntry

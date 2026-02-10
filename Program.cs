@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using QueueLess.Data;
 namespace QueueLess
 {
-    using QueueLess.Data;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
-    
+    using QueueLess.Data;
+    using QueueLess.Services;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -31,6 +32,8 @@ namespace QueueLess
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddHostedService<QueueExpirationService>();
 
             var app = builder.Build();
 

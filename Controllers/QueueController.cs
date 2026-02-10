@@ -86,6 +86,7 @@
                 Name = model.Name,
                 Description = model.Description,
                 AverageServiceTimeMinutes = model.AverageServiceTimeMinutes,
+                MaxWaitMinutes = model.MaxWaitMinutes,
                 IsOpen = model.IsOpen,
                 CreatedOn = DateTime.UtcNow,
                 ServiceLocationId = model.ServiceLocationId
@@ -187,6 +188,7 @@
                     Name = q.Name,
                     Description = q.Description,
                     AverageServiceTimeMinutes = q.AverageServiceTimeMinutes,
+                    MaxWaitMinutes = q.MaxWaitMinutes,
                     IsOpen = q.IsOpen
                 })
                 .FirstOrDefault();
@@ -210,6 +212,7 @@
             queue.Name = model.Name;
             queue.Description = model.Description;
             queue.AverageServiceTimeMinutes = model.AverageServiceTimeMinutes;
+            queue.MaxWaitMinutes = model.MaxWaitMinutes;
             queue.IsOpen = model.IsOpen;
 
             context.SaveChanges();
@@ -290,11 +293,13 @@
                 {
                     QueueId = q.Id,
                     Name = q.Name,
-                    Description = q.Description, 
+                    Description = q.Description,
                     IsOpen = q.IsOpen,
                     AverageServiceTimeMinutes = q.AverageServiceTimeMinutes,
-                    WaitingCount = q.QueueEntries.Count(),
-                    EstimatedWaitingTimeMinutes = q.QueueEntries.Count() * q.AverageServiceTimeMinutes
+                    WaitingCount = q.QueueEntries
+                        .Count(e => e.Status == QueueEntryStatus.Waiting),
+                    EstimatedWaitingTimeMinutes = 
+                        q.QueueEntries.Count(e => e.Status == QueueEntryStatus.Waiting) * q.AverageServiceTimeMinutes
                 })
                 .FirstOrDefault();
             if (queue == null)
@@ -332,7 +337,8 @@
             {
                 QueueId = model.QueueId,
                 ClientName = model.ClientName,
-                JoinedOn = DateTime.UtcNow
+                JoinedOn = DateTime.UtcNow,
+                Status = QueueEntryStatus.Waiting
             };
             context.QueueEntries.Add(entry);
             await context.SaveChangesAsync();
@@ -360,6 +366,8 @@
                 .Where(e => e.Status == QueueEntryStatus.Waiting)
                 .OrderBy(e => e.JoinedOn)
                 .ToList();
+            if (entry.Status != QueueEntryStatus.Waiting)
+                return RedirectToAction("WaitingResult", new { id = queue.Id, entryId = entry.Id });
 
             var position = ordered.FindIndex(e => e.Id == entry.Id) + 1;
             var ahead = position - 1;
@@ -387,23 +395,28 @@
             var queue = context.Queues
                 .Include(q => q.QueueEntries)
                 .FirstOrDefault(q => q.Id == id);
+
             if (queue == null)
-                return NotFound();
+                return Json(new { state = "queue_removed" });
 
             var entry = queue.QueueEntries.FirstOrDefault(e => e.Id == entryId);
-            if (entry == null)
-                return NotFound();
 
-            var ordered = queue.QueueEntries
+            if (entry == null)
+                return Json(new { state = "removed" });
+
+            if (entry.Status != QueueEntryStatus.Waiting)
+                return Json(new { state = entry.Status.ToString().ToLower() });
+
+            var waiting = queue.QueueEntries
                 .Where(e => e.Status == QueueEntryStatus.Waiting)
                 .OrderBy(e => e.JoinedOn)
                 .ToList();
 
-            var position = ordered.FindIndex(e => e.Id == entry.Id) + 1;
+            var position = waiting.FindIndex(e => e.Id == entry.Id) + 1;
             var ahead = position - 1;
             var estimated = ahead * queue.AverageServiceTimeMinutes;
 
-            return Json(new { position, ahead, estimated });
+            return Json(new { state = "waiting", position, ahead, estimated });
         }
 
     }

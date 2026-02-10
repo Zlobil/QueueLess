@@ -24,6 +24,11 @@
         <input asp-for="AverageServiceTimeMinutes" type="number" class="form-control" />
         <span asp-validation-for="AverageServiceTimeMinutes" class="text-danger"></span>
     </div>
+    <div class="mb-3">
+        <label asp-for="MaxWaitMinutes" class="form-label"></label>
+        <input asp-for="MaxWaitMinutes" type="number" class="form-control" />
+        <span asp-validation-for="MaxWaitMinutes" class="text-danger"></span>
+    </div>
     <div class="form-check mb-4">
         <input asp-for="IsOpen" class="form-check-input" />
         <label asp-for="IsOpen" class="form-check-label"></label>

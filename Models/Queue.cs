@@ -22,6 +22,10 @@
         public int AverageServiceTimeMinutes { get; set; }
 
         [Required]
+        [Range(MaxWaitMinutesMin, MaxWaitMinutesMax)]
+        public int MaxWaitMinutes { get; set; }
+
+        [Required]
         public bool IsOpen { get; set; }
 
         [Required]
