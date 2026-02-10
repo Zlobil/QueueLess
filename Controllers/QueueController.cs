@@ -99,7 +99,7 @@
         }
 
         [HttpGet]
-        public IActionResult Details(int id)
+        public IActionResult Details(int id, string? tab = "waiting")
         {
             if (id <= 0)
                 return BadRequest();
@@ -127,6 +127,7 @@
                 .OrderByDescending(e => e.JoinedOn)
                 .Select(e => new QueueEntryHistoryViewModel
                 {
+                    EntryId = e.Id,
                     ClientName = e.ClientName,
                     Status = e.Status,
                     JoinedOn = e.JoinedOn
@@ -141,10 +142,9 @@
                 IsOpen = queue.IsOpen,
                 AverageServiceTimeMinutes = queue.AverageServiceTimeMinutes,
                 CreatedOn = queue.CreatedOn,
-
-                WaitingCount = waiting.Count,
                 Entries = waiting,
-                History = history
+                History = history,
+                ActiveTab = tab
             };
 
             return View(model);
@@ -174,6 +174,39 @@
             await context.SaveChangesAsync();
 
             return RedirectToAction("Details", new { id = entry.QueueId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CleanupHistory(QueueHistoryCleanupViewModel model)
+        {
+            if (model.QueueId <= 0)
+                return BadRequest();
+
+            var query = context.QueueEntries
+                .Where(e => e.QueueId == model.QueueId && e.Status != QueueEntryStatus.Waiting);
+            if (model.Days != -1)
+            {
+                var cutoff = DateTime.UtcNow.AddDays(-model.Days);
+                query = query.Where(e => e.JoinedOn < cutoff);
+            }
+
+            context.QueueEntries.RemoveRange(query);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = model.QueueId, tab = "history" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteHistoryEntry(int entryId)
+        {
+            var entry = await context.QueueEntries.FindAsync(entryId);
+            if (entry == null)
+                return NotFound();
+
+            context.QueueEntries.Remove(entry);
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id = entry.QueueId, tab = "history" });
         }
 
 
