@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QueueLess.Data.Models\QueueLess.Data.Models.csproj" />
+    <ProjectReference Include="..\QueueLess.GCommon\QueueLess.GCommon.csproj" />
+  </ItemGroup>
+
+</Project>

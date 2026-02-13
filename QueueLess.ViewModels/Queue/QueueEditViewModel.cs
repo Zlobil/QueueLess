@@ -1,0 +1,33 @@
+﻿namespace QueueLess.ViewModels.Queue
+{
+    using System.ComponentModel.DataAnnotations;
+    using static QueueLess.GCommon.EntityValidation.Queue;
+
+    public class QueueEditViewModel
+    {
+        [Required]
+        public int Id { get; set; }
+
+        [Required]
+        [MaxLength(NameMaxLength)]
+        [Display(Name = "Name")]
+        public string Name { get; set; } = null!;
+
+        [MaxLength(DescriptionMaxLength)]
+        [Display(Name = "Description")]
+        public string? Description { get; set; }
+
+        [Required]
+        [Range(AverageServiceTimeMin, AverageServiceTimeMax)]
+        [Display(Name = "Average Service Time (minutes)")]
+        public int AverageServiceTimeMinutes { get; set; }
+
+        [Required]
+        [Range(MaxWaitMinutesMin, MaxWaitMinutesMax)]
+        [Display(Name = "Max wait time (minutes)")]
+        public int MaxWaitMinutes { get; set; }
+
+        [Display(Name = "Queue is open")]
+        public bool IsOpen { get; set; }
+    }
+}

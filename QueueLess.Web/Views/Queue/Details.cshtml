@@ -1,0 +1,148 @@
+﻿@using QueueLess.Data.Models.Enums
+@using QueueLess.ViewModels.Queue
+@model QueueDetailsViewModel
+
+@{
+    ViewData["Title"] = "Queue Dashboard";
+}
+
+<h1 class="mb-3">@Model.Name</h1>
+@if (!string.IsNullOrWhiteSpace(Model.Description))
+{
+    <p class="text-muted">@Model.Description</p>
+}
+
+<p>
+    Status: <span class="badge @(Model.IsOpen ? "bg-success" : "bg-danger")">@(Model.IsOpen ? "Open" : "Closed")</span>
+    <br /><br />
+    Average service time: <strong>@Model.AverageServiceTimeMinutes minutes</strong>
+    <br />
+    Created on: <strong>@Model.CreatedOn.ToString("dd.MM.yyyy")</strong>
+</p>
+
+<hr />
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link @(Model.ActiveTab == "waiting" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#waiting">
+            Waiting (@Model.Entries.Count)
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(Model.ActiveTab == "history" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#history">
+            History (@Model.History.Count)
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    
+    <div class="tab-pane fade @(Model.ActiveTab == "waiting" ? "show active" : "")" id="waiting">
+        <h4 class="mb-3">Waiting clients</h4>
+        @if (!Model.Entries.Any())
+        {
+            <p class="text-muted">No clients in queue.</p>
+        }
+        else
+        {
+            <form asp-action="ServeNext" asp-route-id="@Model.QueueId" method="post">
+                <button class="btn btn-success">Serve next</button>
+            </form>
+            <br />
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="col-md-1">#</th>
+                        <th>Client</th>
+                        <th class="col-md-1 text-center">Status</th>
+                        <th class="col-md-2">Joined</th>
+                        <th class="col-md-2 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in Model.Entries)
+                    {
+                        <tr>
+                            <td>@entry.Position</td>
+                            <td>@entry.ClientName</td>
+                            <td class="text-center">
+                                <span class="badge @(entry.Status == QueueEntryStatus.Serving ? "bg-success" : "bg-secondary")">
+                                    @entry.Status
+                                </span>
+                            </td>
+                            <td>@entry.JoinedOn.ToString("HH:mm dd.MM.yyyy")</td>
+                            <td class="text-center">
+                                <form asp-action="Serve" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@entry.EntryId" />
+                                    <button type="submit" class="btn btn-sm btn-success">Serve</button>
+                                </form>
+                                <form asp-action="Skip" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="id" value="@entry.EntryId" />
+                                    <button type="submit" class="btn btn-sm btn-warning">Skip</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="tab-pane fade @(Model.ActiveTab == "history" ? "show active" : "")" id="history">
+        <h4 class="mb-3">History</h4>
+        @if (!Model.History.Any())
+        {
+            <p class="text-muted">No history yet.</p>
+        }
+        else
+        {
+            <div class="d-flex justify-content-end">
+            <form asp-action="CleanupHistory" method="post" class="mb-3">
+                <input type="hidden" name="QueueId" value="@Model.QueueId" />
+                <select name="Days" class="form-select w-auto d-inline">
+                    <option value="1">Older than 24 hours</option>
+                    <option value="7">Older than 7 days</option>
+                    <option value="30">Older than 30 days</option>
+                    <option value="-1">All history</option>
+                </select>
+                <button class="btn btn-danger ms-2">Delete</button>
+            </form>
+            </div>
+
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Client</th>
+                        <th class="col-md-1 text-center">Status</th>
+                        <th class="col-md-2">Joined</th>
+                        <th class="col-md-1 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in Model.History)
+                    {
+                        <tr>
+                            <td>@h.ClientName</td>
+                            <td class="text-center">
+                                <span class="badge 
+                                    @(h.Status == QueueEntryStatus.Served ? "bg-success" : 
+                                    h.Status == QueueEntryStatus.Skipped ? "bg-warning" :
+                                    "bg-secondary")">
+                                    @h.Status
+                                </span>
+                            </td>
+                            <td>@h.JoinedOn.ToString("HH:mm dd.MM.yyyy")</td>
+                            <td class="text-center">
+                                <form asp-action="DeleteHistoryEntry" method="post" class="d-inline ms-1">
+                                    <input type="hidden" name="id" value="@h.EntryId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+</div>

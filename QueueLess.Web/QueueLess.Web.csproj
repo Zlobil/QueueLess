@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<UserSecretsId>aspnet-QueueLess-6715aa82-9621-4697-bcd1-738ab398bcac</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.23" />
+	  <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
+	  <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.23" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.23" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.23" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.23" />
+	  <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\QueueLess.Data.Models\QueueLess.Data.Models.csproj" />
+    <ProjectReference Include="..\QueueLess.Data\QueueLess.Data.csproj" />
+    <ProjectReference Include="..\QueueLess.GCommon\QueueLess.GCommon.csproj" />
+    <ProjectReference Include="..\QueueLess.Services.Core\QueueLess.Services.Core.csproj" />
+    <ProjectReference Include="..\QueueLess.ViewModels\QueueLess.ViewModels.csproj" />
+  </ItemGroup>
+
+</Project>

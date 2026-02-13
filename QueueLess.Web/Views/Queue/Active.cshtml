@@ -1,0 +1,36 @@
+﻿@using QueueLess.ViewModels.Queue
+@model IEnumerable<QueueActiveViewModel>
+
+@{
+    ViewData["Title"] = "Active Queues";
+}
+
+<h1 class="mb-4">Available Queues</h1>
+
+<div class="list-group">
+    @foreach (var queue in Model)
+    {
+        <a asp-controller="Queue" asp-action="Public" asp-route-id="@queue.Id" class="list-group-item list-group-item-action">
+
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">@queue.Name</h5>
+
+                <small class="fw-semibold @(queue.IsOpen ? "text-success" : "text-danger")">
+                    @(queue.IsOpen ? "Open" : "Closed")
+                </small>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(queue.Description))
+            {
+                <p class="mb-1 text-muted">@queue.Description</p>
+            }
+
+            <small>Avg. service time: <strong>@queue.AverageServiceTimeMinutes min</strong></small>
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <p class="text-muted mt-4">No active queues available at the moment.</p>
+}

@@ -1,3 +1,14 @@
 <Solution>
-  <Project Path="QueueLess.csproj" />
+  <Folder Name="/Data/">
+    <Project Path="QueueLess.Data.Models/QueueLess.Data.Models.csproj" Id="6492d21a-d48b-4211-8796-442246a53190" />
+    <Project Path="QueueLess.Data/QueueLess.Data.csproj" Id="76f0bdd3-042c-4e6e-b218-3dcbf63450dc" />
+  </Folder>
+  <Folder Name="/Services/">
+    <Project Path="QueueLess.Services.Core/QueueLess.Services.Core.csproj" Id="765fcad0-e9b1-4a1b-8db8-20489dbd08bc" />
+  </Folder>
+  <Folder Name="/Web/">
+    <Project Path="QueueLess.ViewModels/QueueLess.ViewModels.csproj" Id="bb76fc93-59ba-4cc4-be71-c3ab6d0cafa8" />
+    <Project Path="QueueLess.Web/QueueLess.Web.csproj" />
+  </Folder>
+  <Project Path="QueueLess.GCommon/QueueLess.GCommon.csproj" Id="8f4dac3f-8260-4db5-98f1-c192d82dc1d6" />
 </Solution>
