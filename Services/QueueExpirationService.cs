@@ -4,36 +4,32 @@ using QueueLess.Models.Enums;
 
 namespace QueueLess.Services
 {
-    public class QueueExpirationService : BackgroundService
+    public class QueueExpirationService(IServiceScopeFactory scopeFactory) : BackgroundService
     {
-        private readonly IServiceScopeFactory scopeFactory;
-
-        public QueueExpirationService(IServiceScopeFactory scopeFactory)
-        {
-            this.scopeFactory = scopeFactory;
-        }
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await ExpireEntries();
+                await ExpireEntries(stoppingToken);
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
 
-        private async Task ExpireEntries()
+        private async Task ExpireEntries(CancellationToken cancellationToken)
         {
             using var scope = scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             var now = DateTime.UtcNow;
-            var expired = context.QueueEntries
+
+            var expired = await context.QueueEntries
                 .Include(e => e.Queue)
-                .Where(e =>
-                    e.Status == QueueEntryStatus.Waiting &&
-                    e.JoinedOn.AddMinutes(e.Queue.MaxWaitMinutes) < now)
-                .ToList();
+                .Where(e => (e.Status == QueueEntryStatus.Waiting ||
+                            e.Status == QueueEntryStatus.Serving) &&
+                            e.Queue != null &&
+                            e.Queue.MaxWaitMinutes > 0 &&
+                            e.JoinedOn.AddMinutes(e.Queue.MaxWaitMinutes) < now)
+                .ToListAsync(cancellationToken);
             if (!expired.Any())
                 return;
 
@@ -42,7 +38,7 @@ namespace QueueLess.Services
                 e.Status = QueueEntryStatus.Expired;
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }

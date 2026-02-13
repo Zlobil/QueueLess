@@ -27,50 +27,54 @@
 </div>
 
 <div id="message" class="alert alert-info text-center mt-5 col-lg-6 mx-auto">
-    Please stay nearby. This page updates automatically.
+    @(Model.Position == 1
+        ? "It’s your turn! Please proceed to service."
+        : "Please stay nearby. This page updates automatically.")
 </div>
 
 <script>
     const queueId = @Model.QueueId;
     const entryId = @Model.EntryId;
 
-    async function refreshStatus() {
+    const position = document.getElementById("position");
+    const ahead = document.getElementById("ahead");
+    const estimated = document.getElementById("estimated");
+    const message = document.getElementById("message");
+
+    async function queueRefreshStatus() {
         try {
             const response = await fetch(`/Queue/WaitingStatus/${queueId}/${entryId}`);
             const data = await response.json();
-
+            
             if (data.state === "waiting") {
-                document.getElementById("position").innerText = "#" + data.position;
-                document.getElementById("ahead").innerText = data.ahead;
-                document.getElementById("estimated").innerText = data.estimated + " min";
+                position.innerText = "#" + data.position;
+                ahead.innerText = data.ahead;
+                estimated.innerText = data.estimated + " min";
+                
+                if (data.position === 1)
+                    message.innerText = "It’s your turn! Please proceed to service.";
+                else
+                    message.innerText = "Please stay nearby. This page updates automatically.";
+                    
                 return;
             }
-            if (data.state === "served") {
-                window.location.href = "/Queue/WaitingResult?state=served";
+            
+            if (data.state === "your_turn") {
+                position.innerText = "#1";
+                ahead.innerText = "0";
+                estimated.innerText = "0 min";
+                message.innerText = "It’s your turn! Please proceed to service.";
+                return;
             }
-            if (data.state === "skipped") {
-                showFinal("You missed your turn.");
-            }
-            if (data.state === "expired") {
-                showFinal("Your session expired.");
-            }
-            if (data.state === "removed") {
-                showFinal("You were removed from the queue.");
-            }
-            if (data.state === "queue_removed") {
-                showFinal("This queue no longer exists.");
+            
+            if (["served","skipped","expired","removed","queue_removed"].includes(data.state)) {
+                window.location.href = `/Queue/WaitingResult?state=${data.state}`;
             }
         }
         catch {
-            showFinal("Connection lost.");
+            message.innerText = "Connection lost.";
         }
     }
 
-    function showFinal(text) {
-        document.getElementById("message").className = "alert alert-danger text-center mt-5 col-lg-6 mx-auto";
-        document.getElementById("message").innerText = text;
-        clearInterval(timer);
-    }
-
-    const timer = setInterval(refreshStatus, 5000);
+    setInterval(queueRefreshStatus, 5000);
 </script>

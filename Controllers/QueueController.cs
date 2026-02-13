@@ -6,8 +6,9 @@
     using QueueLess.Models;
     using QueueLess.Models.Enums;
     using QueueLess.ViewModels;
+    using System;
 
-    public class QueueController : Controller
+    public class QueueController : BaseController
     {
         private readonly ApplicationDbContext context;
 
@@ -111,21 +112,25 @@
                 return NotFound();
             
             var waiting = queue.QueueEntries
-                .Where(e => e.Status == QueueEntryStatus.Waiting)
+                .Where(e => e.Status == QueueEntryStatus.Waiting ||
+                            e.Status == QueueEntryStatus.Serving)
                 .OrderBy(e => e.JoinedOn)
-                .Select((e, index) => new QueueEntryViewModel
+                .Select((e, index) => new QueueDetailsWaitingViewModel
                 {
                     EntryId = e.Id,
                     Position = index + 1,
                     ClientName = e.ClientName,
+                    Status = e.Status,
                     JoinedOn = e.JoinedOn
                 })
                 .ToList();
 
             var history = queue.QueueEntries
-                .Where(e => e.Status != QueueEntryStatus.Waiting)
+                .Where(e => e.Status == QueueEntryStatus.Served ||
+                            e.Status == QueueEntryStatus.Skipped ||
+                            e.Status == QueueEntryStatus.Expired)
                 .OrderByDescending(e => e.JoinedOn)
-                .Select(e => new QueueEntryHistoryViewModel
+                .Select(e => new QueueDetailsHistoryViewModel
                 {
                     EntryId = e.Id,
                     ClientName = e.ClientName,
@@ -150,28 +155,93 @@
             return View(model);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Serve(int entryId)
+        private async Task Serving(int id)
         {
-            var entry = context.QueueEntries.FirstOrDefault(e => e.Id == entryId);
+            var queue = await context.Queues
+                .Include(q => q.QueueEntries)
+                .FirstOrDefaultAsync(q => q.Id == id);
+            if (queue == null)
+                return;
+
+            var serving = queue.QueueEntries
+                .FirstOrDefault(e => e.Status == QueueEntryStatus.Serving);
+            if (serving != null)
+                return;
+
+            var next = queue.QueueEntries
+                .Where(e => e.Status == QueueEntryStatus.Waiting)
+                .OrderBy(e => e.JoinedOn)
+                .FirstOrDefault();
+
+            if (next != null)
+            {
+                next.Status = QueueEntryStatus.Serving;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Serve(int id)
+        {
+            if (id <= 0)
+                return BadRequest();
+
+            var entry = context.QueueEntries.FirstOrDefault(e => e.Id == id);
             if (entry == null)
                 return NotFound();
 
             entry.Status = QueueEntryStatus.Served;
             await context.SaveChangesAsync();
 
+            await Serving(entry.QueueId);
+
             return RedirectToAction("Details", new { id = entry.QueueId });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Skip(int entryId)
+        public async Task<IActionResult> ServeNext(int id)
         {
-            var entry = context.QueueEntries.FirstOrDefault(e => e.Id == entryId);
+            if (id <= 0)
+                return BadRequest();
+
+            var queue = context.Queues
+                .Include(q => q.QueueEntries)
+                .FirstOrDefault(q => q.Id == id);
+            if (queue == null)
+                return NotFound();
+            
+            var current = queue.QueueEntries
+                .FirstOrDefault(e => e.Status == QueueEntryStatus.Serving);
+            if (current != null)
+                current.Status = QueueEntryStatus.Served;
+            
+            var next = queue.QueueEntries
+                .Where(e => e.Status == QueueEntryStatus.Waiting)
+                .OrderBy(e => e.JoinedOn)
+                .FirstOrDefault();
+
+            if (next != null)
+                next.Status = QueueEntryStatus.Serving;
+
+            await context.SaveChangesAsync();
+
+            return RedirectToAction("Details", new { id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Skip(int id)
+        {
+            if (id <= 0)
+                return BadRequest();
+
+            var entry = context.QueueEntries.FirstOrDefault(e => e.Id == id);
             if (entry == null)
                 return NotFound();
 
             entry.Status = QueueEntryStatus.Skipped;
             await context.SaveChangesAsync();
+
+            await Serving(entry.QueueId);
 
             return RedirectToAction("Details", new { id = entry.QueueId });
         }
@@ -197,9 +267,12 @@
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteHistoryEntry(int entryId)
+        public async Task<IActionResult> DeleteHistoryEntry(int id)
         {
-            var entry = await context.QueueEntries.FindAsync(entryId);
+            if (id <= 0)
+                return BadRequest();
+
+            var entry = await context.QueueEntries.FindAsync(id);
             if (entry == null)
                 return NotFound();
 
@@ -208,7 +281,6 @@
 
             return RedirectToAction("Details", new { id = entry.QueueId, tab = "history" });
         }
-
 
         [HttpGet]
         public IActionResult Edit(int id)
@@ -256,6 +328,9 @@
         [HttpGet]
         public IActionResult Delete(int id)
         {
+            if (id <= 0)
+                return BadRequest();
+
             var queue = context.Queues
                 .Where(q => q.Id == id)
                 .Select(q => new QueueDeleteViewModel
@@ -376,14 +451,18 @@
             context.QueueEntries.Add(entry);
             await context.SaveChangesAsync();
 
+            await Serving(model.QueueId);
+
             return RedirectToAction("Waiting", new { id = model.QueueId, entryId = entry.Id });
         }
 
         [HttpGet("Queue/Waiting/{id}/{entryId}")]
-        public IActionResult Waiting(int id, int entryId)
+        public async Task<IActionResult> Waiting(int id, int entryId)
         {
             if (id <= 0 || entryId <= 0)
                 return BadRequest();
+
+            await Serving(id);
 
             var queue = context.Queues
                 .Include(q => q.QueueEntries)
@@ -395,15 +474,18 @@
             if (entry == null)
                 return NotFound();
 
-            var ordered = queue.QueueEntries
-                .Where(e => e.Status == QueueEntryStatus.Waiting)
-                .OrderBy(e => e.JoinedOn)
-                .ToList();
-            if (entry.Status != QueueEntryStatus.Waiting)
+            if (entry.Status != QueueEntryStatus.Waiting && 
+                entry.Status != QueueEntryStatus.Serving)
                 return RedirectToAction("WaitingResult", new { id = queue.Id, entryId = entry.Id });
 
+            var ordered = queue.QueueEntries
+                .Where(e => e.Status == QueueEntryStatus.Waiting ||
+                            e.Status == QueueEntryStatus.Serving)
+                .OrderBy(e => e.JoinedOn)
+                .ToList();
+
             var position = ordered.FindIndex(e => e.Id == entry.Id) + 1;
-            var ahead = position - 1;
+            var ahead = Math.Max(position - 1, 0);
             var estimated = ahead * queue.AverageServiceTimeMinutes;
 
             var model = new QueueWaitingViewModel
@@ -428,28 +510,45 @@
             var queue = context.Queues
                 .Include(q => q.QueueEntries)
                 .FirstOrDefault(q => q.Id == id);
-
             if (queue == null)
                 return Json(new { state = "queue_removed" });
 
-            var entry = queue.QueueEntries.FirstOrDefault(e => e.Id == entryId);
-
+            var entry = queue.QueueEntries
+                .FirstOrDefault(e => e.Id == entryId);
             if (entry == null)
                 return Json(new { state = "removed" });
+
+            if (entry.Status == QueueEntryStatus.Serving)
+                return Json(new { state = "your_turn", position = 1, ahead = 0, estimated = 0 });
 
             if (entry.Status != QueueEntryStatus.Waiting)
                 return Json(new { state = entry.Status.ToString().ToLower() });
 
-            var waiting = queue.QueueEntries
-                .Where(e => e.Status == QueueEntryStatus.Waiting)
+            var active = queue.QueueEntries
+                .Where(e => e.Status == QueueEntryStatus.Waiting ||
+                            e.Status == QueueEntryStatus.Serving)
                 .OrderBy(e => e.JoinedOn)
                 .ToList();
 
-            var position = waiting.FindIndex(e => e.Id == entry.Id) + 1;
-            var ahead = position - 1;
+            var position = active.FindIndex(e => e.Id == entry.Id) + 1;
+            var ahead = Math.Max(position - 1, 0);
             var estimated = ahead * queue.AverageServiceTimeMinutes;
 
             return Json(new { state = "waiting", position, ahead, estimated });
+        }
+
+        [HttpGet]
+        public IActionResult WaitingResult(string state)
+        {
+            if (string.IsNullOrWhiteSpace(state))
+                return RedirectToAction("Index", "Home");
+
+            var model = new QueueWaitingResultViewModel
+            {
+                State = state
+            };
+
+            return View(model);
         }
 
     }

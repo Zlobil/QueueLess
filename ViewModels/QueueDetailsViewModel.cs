@@ -16,9 +16,9 @@
 
         public int WaitingCount { get; set; }
 
-        public List<QueueEntryViewModel> Entries { get; set; } = new();
+        public List<QueueDetailsWaitingViewModel> Entries { get; set; } = new();
         
-        public List<QueueEntryHistoryViewModel> History { get; set; } = new();
+        public List<QueueDetailsHistoryViewModel> History { get; set; } = new();
 
         public string ActiveTab { get; set; } = "waiting";
     }

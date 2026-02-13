@@ -2,7 +2,7 @@
 
 namespace QueueLess.ViewModels
 {
-    public class QueueEntryHistoryViewModel
+    public class QueueDetailsHistoryViewModel
     {
         public int EntryId { get; set; }
 
