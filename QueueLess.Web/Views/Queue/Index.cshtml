@@ -14,10 +14,10 @@
         <thead class="table-light">
             <tr class="align-middle">
                 <th>Name</th>
-                <th>Status</th>
-                <th>Created On</th>
-                <th>Avg. Service Time</th>
-                <th class="text-center">Actions</th>
+                <th class="col-md-1">Status</th>
+                <th class="col-md-2">Created On</th>
+                <th class="col-md-2">Avg. Service Time</th>
+                <th class="col-md-1">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -25,26 +25,24 @@
             {
                 <tr>
                     <td>
-                        <strong>@queue.Name</strong>
-                        @if (!string.IsNullOrWhiteSpace(queue.Description))
-                        {
-                            <div class="text-muted small">@queue.Description</div>
-                        }
+                        <a asp-action="Details" asp-route-id="@queue.Id" class="text-decoration-none">
+                            <strong>@queue.Name</strong>
+                            @if (!string.IsNullOrWhiteSpace(queue.Description))
+                            {
+                                <div class="text-muted small">@queue.Description</div>
+                            }
+                        </a>
                     </td>
 
-                    <td>
+                    <td class="text-center">
                         <span class="badge @(queue.IsOpen ? "bg-success" : "bg-danger")">
                             @(queue.IsOpen ? "Open" : "Closed")
                         </span>
                     </td>
-
                     <td>@queue.CreatedOn.ToString("dd MMM yyyy")</td>
-
                     <td>@queue.AverageServiceTimeMinutes min</td>
-
                     <td class="text-center">
                         <div class="d-flex flex-column flex-md-row gap-1 justify-content-center">
-                            <a class="btn btn-sm btn-outline-info" asp-action="Details" asp-route-id="@queue.Id">View</a>
                             <a class="btn btn-sm btn-outline-warning" asp-action="Edit" asp-route-id="@queue.Id">Edit</a>
                             <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@queue.Id">Delete</a>
                         </div>

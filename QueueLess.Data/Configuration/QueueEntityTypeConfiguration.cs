@@ -35,7 +35,6 @@
                     ServiceLocationId = 1,
                     OwnerId = ownerId
                 },
-
                 new Queue
                 {
                     Id = 3,
@@ -48,7 +47,6 @@
                     ServiceLocationId = 2,
                     OwnerId = ownerId
                 },
-
                 new Queue
                 {
                     Id = 4,
@@ -61,7 +59,6 @@
                     ServiceLocationId = 3,
                     OwnerId = ownerId
                 },
-
                 new Queue
                 {
                     Id = 5,
@@ -69,7 +66,7 @@
                     Description = "Smartphone screen replacement service.",
                     AverageServiceTimeMinutes = 40,
                     MaxWaitMinutes = 30,
-                    IsOpen = true,
+                    IsOpen = false,
                     CreatedOn = new DateTime(2026, 1, 14),
                     ServiceLocationId = 4,
                     OwnerId = ownerId
