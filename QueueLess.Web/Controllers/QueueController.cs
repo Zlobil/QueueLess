@@ -5,6 +5,10 @@
     using QueueLess.Services.Contracts;
     using QueueLess.ViewModels.Queue;
 
+    /// <summary>
+    /// Controller responsible for managing queues. 
+    /// Handles actions accessible only by authenticated users as well as public queue actions.
+    /// </summary>
     public class QueueController : BaseController
     {
 
@@ -15,6 +19,9 @@
             this.queueService = queueService;
         }
 
+        /// <summary>
+        /// Displays all queues owned by the current user.
+        /// </summary>
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -24,6 +31,9 @@
             return View(queues);
         }
 
+        /// <summary>
+        /// Displays the queue creation form.
+        /// </summary>
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Create()
@@ -32,6 +42,9 @@
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the POST request to create a new queue.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(QueueCreateViewModel model)
@@ -53,6 +66,9 @@
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Displays detailed view of a queue, including waiting clients and history tabs.
+        /// </summary>
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Details(int id, string? tab = "waiting")
@@ -63,6 +79,9 @@
             return View(model);
         }
 
+        /// <summary>
+        /// Marks a specific queue entry as served.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Serve(int id)
@@ -72,6 +91,9 @@
             return RedirectToAction("Details", new { id = queueId });
         }
 
+        /// <summary>
+        /// Serves the next client in the queue.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> ServeNext(int id)
@@ -80,6 +102,9 @@
             return RedirectToAction("Details", new { id });
         }
 
+        /// <summary>
+        /// Skips a specific queue entry.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Skip(int id)
@@ -89,6 +114,9 @@
             return RedirectToAction("Details", new { id = queueId });
         }
 
+        /// <summary>
+        /// Cleans up history entries of a queue based on the specified model.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> CleanupHistory(QueueHistoryCleanupViewModel model)
@@ -97,6 +125,9 @@
             return RedirectToAction("Details", new { id = model.QueueId, tab = "history" });
         }
 
+        /// <summary>
+        /// Deletes a single history entry from a queue.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> DeleteHistoryEntry(int id)
@@ -105,6 +136,9 @@
             return RedirectToAction("Details", new { id = queueId, tab = "history" });
         }
 
+        /// <summary>
+        /// Displays the edit form for a queue.
+        /// </summary>
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -115,6 +149,9 @@
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the POST request to update a queue.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(QueueEditViewModel model)
@@ -126,6 +163,9 @@
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Displays the delete confirmation page for a queue.
+        /// </summary>
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
@@ -136,6 +176,9 @@
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the POST request to delete a queue.
+        /// </summary>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Delete(QueueDeleteViewModel model)
@@ -150,6 +193,9 @@
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Displays all active queues (public view).
+        /// </summary>
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Active()
@@ -158,6 +204,9 @@
             return View(queues);
         }
 
+        /// <summary>
+        /// Displays public details of a specific queue.
+        /// </summary>
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Public(int id)
@@ -167,6 +216,9 @@
             return View(model);
         }
 
+        /// <summary>
+        /// Displays the join queue form.
+        /// </summary>
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Join(int id)
@@ -176,6 +228,9 @@
             return View(model);
         }
 
+        /// <summary>
+        /// Handles the POST request to join a queue.
+        /// </summary>
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Join(QueueJoinViewModel model)
@@ -185,6 +240,9 @@
             return RedirectToAction("Waiting", new { id = model.QueueId, entryId });
         }
 
+        /// <summary>
+        /// Displays the waiting page for a client in a queue.
+        /// </summary>
         [AllowAnonymous]
         [HttpGet("Queue/Waiting/{id}/{entryId}")]
         public async Task<IActionResult> Waiting(int id, int entryId)
@@ -194,6 +252,9 @@
             return View(model);
         }
 
+        /// <summary>
+        /// Returns the JSON status of a queue entry for real-time updates.
+        /// </summary>
         [AllowAnonymous]
         [HttpGet("Queue/WaitingStatus/{id}/{entryId}")]
         public async Task<IActionResult> WaitingStatus(int id, int entryId)
@@ -201,6 +262,9 @@
             return Json(await queueService.GetWaitingStatusAsync(id, entryId));
         }
 
+        /// <summary>
+        /// Displays the waiting result page based on a given state.
+        /// </summary>
         [AllowAnonymous]
         [HttpGet]
         public IActionResult WaitingResult(string state)

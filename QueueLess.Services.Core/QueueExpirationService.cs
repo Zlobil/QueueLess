@@ -1,11 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using QueueLess.Data;
-using QueueLess.Data.Models.Enums;
-
-namespace QueueLess.Services
+﻿namespace QueueLess.Services
 {
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using QueueLess.Data;
+    using QueueLess.Data.Models.Enums;
+
+    /// <summary>
+    /// Background service that automatically marks queue entries as expired
+    /// when their maximum waiting time has elapsed.
+    /// Runs every minute and updates all relevant entries in the database.
+    /// </summary>
     public class QueueExpirationService(IServiceScopeFactory scopeFactory) : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

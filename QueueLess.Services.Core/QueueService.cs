@@ -8,6 +8,10 @@
     using QueueLess.ViewModels.Queue;
     using QueueLess.ViewModels.ServiceLocation;
 
+    /// <summary>
+    /// Service responsible for managing queues, including creation, editing, deletion,
+    /// serving entries, tracking waiting clients, and providing public views.
+    /// </summary>
     public class QueueService : IQueueService
     {
         private readonly ApplicationDbContext context;
@@ -17,6 +21,11 @@
             this.context = context;
         }
 
+        /// <summary>
+        /// Retrieves all queues owned by a specific user.
+        /// </summary>
+        /// <param name="ownerId">The ID of the user who owns the queues.</param>
+        /// <returns>A collection of MyQueuesViewModel objects.</returns>
         public async Task<IEnumerable<MyQueuesViewModel>> GetAllQueuesAsync(string ownerId)
         {
             return await context.Queues
@@ -34,6 +43,10 @@
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Gets the view model for creating a new queue, including available service locations.
+        /// </summary>
+        /// <returns>A QueueCreateViewModel object with service locations.</returns>
         public async Task<QueueCreateViewModel> GetQueueCreateViewModelAsync()
         {
             return new QueueCreateViewModel
@@ -49,9 +62,19 @@
             };
         }
 
+        /// <summary>
+        /// Checks whether a service location exists.
+        /// </summary>
+        /// <param name="id">Service location ID.</param>
+        /// <returns>True if exists, false otherwise.</returns>
         public async Task<bool> ServiceLocationExistsAsync(int id)
             => await context.ServiceLocations.AnyAsync(sl => sl.Id == id);
 
+        /// <summary>
+        /// Creates a new queue for a given owner.
+        /// </summary>
+        /// <param name="model">Queue creation data.</param>
+        /// <param name="ownerId">ID of the user creating the queue.</param>
         public async Task CreateQueueAsync(QueueCreateViewModel model, string ownerId)
         {
             var queue = new Queue
@@ -69,6 +92,13 @@
             await context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Retrieves detailed information about a specific queue.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <param name="ownerId">Owner's user ID.</param>
+        /// <param name="tab">Optional active tab ("waiting" or "history").</param>
+        /// <returns>A QueueDetailsViewModel or null if not found.</returns>
         public async Task<QueueDetailsViewModel?> GetQueueDetailsAsync(int id, string ownerId, string? tab)
         {
             var queue = await context.Queues
@@ -119,6 +149,12 @@
             };
         }
 
+        /// <summary>
+        /// Checks the specified queue to see if any entry is currently being served.
+        /// If no entry is being served, it marks the next waiting entry as serving.
+        /// This method is intended for internal use only.
+        /// </summary>
+        /// <param name="id">The ID of the queue to update.</param>
         private async Task ServingAsync(int id)
         {
             var queue = await context.Queues
@@ -141,6 +177,10 @@
             }
         }
 
+        /// <summary>
+        /// Marks a specific queue entry as served.
+        /// </summary>
+        /// <param name="entryId">Queue entry ID.</param>
         public async Task ServeEntryAsync(int entryId)
         {
             var entry = await context.QueueEntries.FirstOrDefaultAsync(e => e.Id == entryId);
@@ -152,6 +192,10 @@
             await ServingAsync(entry.QueueId);
         }
 
+        /// <summary>
+        /// Marks the next waiting entry in the queue as served.
+        /// </summary>
+        /// <param name="queueId">Queue ID.</param>
         public async Task ServeNextAsync(int queueId)
         {
             var queue = await context.Queues
@@ -174,6 +218,10 @@
             await context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Skips a specific queue entry.
+        /// </summary>
+        /// <param name="entryId">Queue entry ID.</param>
         public async Task SkipEntryAsync(int entryId)
         {
             var entry = await context.QueueEntries.FirstOrDefaultAsync(e => e.Id == entryId);
@@ -185,6 +233,10 @@
             await ServingAsync(entry.QueueId);
         }
 
+        /// <summary>
+        /// Cleans up historical entries of a queue based on specified criteria.
+        /// </summary>
+        /// <param name="model">Cleanup criteria (days limit).</param>
         public async Task CleanupHistoryAsync(QueueHistoryCleanupViewModel model)
         {
             var query = context.QueueEntries
@@ -200,6 +252,11 @@
             await context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Deletes a specific history entry from a queue.
+        /// </summary>
+        /// <param name="entryId">Queue entry ID.</param>
+        /// <returns>The ID of the associated queue.</returns>
         public async Task<int> DeleteHistoryEntryAsync(int entryId)
         {
             var entry = await context.QueueEntries.FindAsync(entryId);
@@ -211,6 +268,12 @@
             return queueId;
         }
 
+        /// <summary>
+        /// Gets a queue for editing.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <param name="ownerId">Owner's user ID.</param>
+        /// <returns>A QueueEditViewModel or null if not found.</returns>
         public async Task<QueueEditViewModel?> GetQueueForEditAsync(int id, string ownerId)
         {
             return await context.Queues
@@ -227,6 +290,11 @@
                 .FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Edits an existing queue.
+        /// </summary>
+        /// <param name="model">Queue edit data.</param>
+        /// <param name="ownerId">Owner's user ID.</param>
         public async Task EditQueueAsync(QueueEditViewModel model, string ownerId)
         {
             var queue = await context.Queues
@@ -242,6 +310,12 @@
             await context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Gets a queue for deletion confirmation.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <param name="ownerId">Owner's user ID.</param>
+        /// <returns>A QueueDeleteViewModel or null if not found.</returns>
         public async Task<QueueDeleteViewModel?> GetQueueForDeleteAsync(int id, string ownerId)
         {
             return await context.Queues
@@ -255,6 +329,12 @@
                 .FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Deletes a queue if it has no active entries.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <param name="ownerId">Owner's user ID.</param>
+        /// <returns>True if deleted successfully, false otherwise.</returns>
         public async Task<bool> DeleteQueueAsync(int id, string ownerId)
         {
             var queue = await context.Queues
@@ -269,6 +349,10 @@
             return true;
         }
 
+        /// <summary>
+        /// Retrieves all active queues (open for clients).
+        /// </summary>
+        /// <returns>Collection of QueueActiveViewModel objects.</returns>
         public async Task<IEnumerable<QueueActiveViewModel>> GetActiveQueuesAsync()
         {
             return await context.Queues
@@ -285,6 +369,11 @@
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Retrieves public view information for a queue.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <returns>A QueuePublicViewModel or null if not found.</returns>
         public async Task<QueuePublicViewModel?> GetPublicQueueAsync(int id)
         {
             return await context.Queues
@@ -305,6 +394,11 @@
                 .FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Retrieves the join page view model for a queue.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <returns>A QueueJoinViewModel or null if not found.</returns>
         public async Task<QueueJoinViewModel?> GetQueueJoinViewModelAsync(int id)
         {
             var queue = await context.Queues.FirstOrDefaultAsync(q => q.Id == id);
@@ -317,6 +411,11 @@
             };
         }
 
+        /// <summary>
+        /// Adds a client to the queue.
+        /// </summary>
+        /// <param name="model">QueueJoinViewModel with client information.</param>
+        /// <returns>The ID of the newly created queue entry.</returns>
         public async Task<int> JoinQueueAsync(QueueJoinViewModel model)
         {
             var entry = new QueueEntry
@@ -333,6 +432,12 @@
             return entry.Id;
         }
 
+        /// <summary>
+        /// Retrieves the waiting view model for a specific queue entry.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <param name="entryId">Queue entry ID.</param>
+        /// <returns>A QueueWaitingViewModel or null if not found or served/skipped.</returns>
         public async Task<QueueWaitingViewModel?> GetWaitingViewModelAsync(int id, int entryId)
         {
             await ServingAsync(id);
@@ -370,6 +475,12 @@
             };
         }
 
+        /// <summary>
+        /// Retrieves the current waiting status for a specific queue entry.
+        /// </summary>
+        /// <param name="id">Queue ID.</param>
+        /// <param name="entryId">Queue entry ID.</param>
+        /// <returns>An anonymous object representing the current state.</returns>
         public async Task<object> GetWaitingStatusAsync(int id, int entryId)
         {
             var queue = await context.Queues
@@ -402,6 +513,11 @@
             return new { state = "waiting", position, ahead, estimated };
         }
 
+        /// <summary>
+        /// Gets the queue ID for a specific entry.
+        /// </summary>
+        /// <param name="entryId">Queue entry ID.</param>
+        /// <returns>The queue ID.</returns>
         public async Task<int> GetQueueIdByEntryAsync(int entryId)
         {
             return await context.QueueEntries
