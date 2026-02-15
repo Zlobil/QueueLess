@@ -1,5 +1,6 @@
 ﻿namespace QueueLess.Web.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using QueueLess.Services.Contracts;
     using QueueLess.ViewModels.Queue;
@@ -14,13 +15,16 @@
             this.queueService = queueService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var queues = await queueService.GetAllQueuesAsync();
+            string userId = GetUserId()!;
+            var queues = await queueService.GetAllQueuesAsync(userId);
             return View(queues);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -28,6 +32,7 @@
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(QueueCreateViewModel model)
         {
@@ -42,18 +47,23 @@
                 return View(model);
             }
 
-            await queueService.CreateQueueAsync(model);
+            string userId = GetUserId()!;
+            await queueService.CreateQueueAsync(model, userId);
+
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Details(int id, string? tab = "waiting")
         {
-            var model = await queueService.GetQueueDetailsAsync(id, tab);
+            string userId = GetUserId()!;
+            var model = await queueService.GetQueueDetailsAsync(id, userId, tab);
             if (model == null) return NotFound();
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Serve(int id)
         {
@@ -62,6 +72,7 @@
             return RedirectToAction("Details", new { id = queueId });
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> ServeNext(int id)
         {
@@ -69,6 +80,7 @@
             return RedirectToAction("Details", new { id });
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Skip(int id)
         {
@@ -77,6 +89,7 @@
             return RedirectToAction("Details", new { id = queueId });
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CleanupHistory(QueueHistoryCleanupViewModel model)
         {
@@ -84,6 +97,7 @@
             return RedirectToAction("Details", new { id = model.QueueId, tab = "history" });
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> DeleteHistoryEntry(int id)
         {
@@ -91,34 +105,43 @@
             return RedirectToAction("Details", new { id = queueId, tab = "history" });
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var model = await queueService.GetQueueForEditAsync(id);
+            string userId = GetUserId()!;
+            var model = await queueService.GetQueueForEditAsync(id, userId);
             if (model == null) return NotFound();
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(QueueEditViewModel model)
         {
             if (!ModelState.IsValid) return View(model);
-            await queueService.EditQueueAsync(model);
+
+            string userId = GetUserId()!;
+            await queueService.EditQueueAsync(model, userId);
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var model = await queueService.GetQueueForDeleteAsync(id);
+            string userId = GetUserId()!;
+            var model = await queueService.GetQueueForDeleteAsync(id, userId);
             if (model == null) return NotFound();
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Delete(QueueDeleteViewModel model)
         {
-            bool deleted = await queueService.DeleteQueueAsync(model.Id);
+            string userId = GetUserId()!;
+            bool deleted = await queueService.DeleteQueueAsync(model.Id, userId);
             if (!deleted)
             {
                 ModelState.AddModelError(string.Empty, "Queue cannot be deleted because it has active entries.");
@@ -127,6 +150,7 @@
             return RedirectToAction(nameof(Index));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Active()
         {
@@ -134,6 +158,7 @@
             return View(queues);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Public(int id)
         {
@@ -142,6 +167,7 @@
             return View(model);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Join(int id)
         {
@@ -150,6 +176,7 @@
             return View(model);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Join(QueueJoinViewModel model)
         {
@@ -158,6 +185,7 @@
             return RedirectToAction("Waiting", new { id = model.QueueId, entryId });
         }
 
+        [AllowAnonymous]
         [HttpGet("Queue/Waiting/{id}/{entryId}")]
         public async Task<IActionResult> Waiting(int id, int entryId)
         {
@@ -166,12 +194,14 @@
             return View(model);
         }
 
+        [AllowAnonymous]
         [HttpGet("Queue/WaitingStatus/{id}/{entryId}")]
         public async Task<IActionResult> WaitingStatus(int id, int entryId)
         {
             return Json(await queueService.GetWaitingStatusAsync(id, entryId));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult WaitingResult(string state)
         {

@@ -4,7 +4,6 @@ using System.Security.Claims;
 
 namespace QueueLess.Web.Controllers
 {
-    [Authorize]
     public class BaseController : Controller
     {
         protected string? GetUserId()

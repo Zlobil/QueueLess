@@ -4,12 +4,13 @@
 
     public interface IQueueService
     {
-        Task<IEnumerable<MyQueuesViewModel>> GetAllQueuesAsync();
+        Task<IEnumerable<MyQueuesViewModel>> GetAllQueuesAsync(string ownerId);
+
         Task<QueueCreateViewModel> GetQueueCreateViewModelAsync();
         Task<bool> ServiceLocationExistsAsync(int id);
-        Task CreateQueueAsync(QueueCreateViewModel model);
+        Task CreateQueueAsync(QueueCreateViewModel model, string ownerId);
 
-        Task<QueueDetailsViewModel?> GetQueueDetailsAsync(int id, string? tab);
+        Task<QueueDetailsViewModel?> GetQueueDetailsAsync(int id, string ownerId, string? tab);
 
         Task ServeEntryAsync(int entryId);
         Task ServeNextAsync(int queueId);
@@ -18,11 +19,11 @@
         Task CleanupHistoryAsync(QueueHistoryCleanupViewModel model);
         Task<int> DeleteHistoryEntryAsync(int entryId);
 
-        Task<QueueEditViewModel?> GetQueueForEditAsync(int id);
-        Task EditQueueAsync(QueueEditViewModel model);
+        Task<QueueEditViewModel?> GetQueueForEditAsync(int id, string ownerId);
+        Task EditQueueAsync(QueueEditViewModel model, string ownerId);
 
-        Task<QueueDeleteViewModel?> GetQueueForDeleteAsync(int id);
-        Task<bool> DeleteQueueAsync(int id);
+        Task<QueueDeleteViewModel?> GetQueueForDeleteAsync(int id, string ownerId);
+        Task<bool> DeleteQueueAsync(int id, string ownerId);
 
         Task<IEnumerable<QueueActiveViewModel>> GetActiveQueuesAsync();
         Task<QueuePublicViewModel?> GetPublicQueueAsync(int id);

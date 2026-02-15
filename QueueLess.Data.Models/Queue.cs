@@ -1,5 +1,6 @@
 ﻿namespace QueueLess.Data.Models
 {
+    using Microsoft.AspNetCore.Identity;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -34,8 +35,13 @@
         [Required]
         [ForeignKey(nameof(ServiceLocation))]
         public int ServiceLocationId { get; set; }
-
         public ServiceLocation ServiceLocation { get; set; } = null!;
+
+        [Required]
+        public string OwnerId { get; set; } = null!;
+
+        [ForeignKey(nameof(OwnerId))]
+        public IdentityUser Owner { get; set; } = null!;
 
         public ICollection<QueueEntry> QueueEntries { get; set; } = new HashSet<QueueEntry>();
     }

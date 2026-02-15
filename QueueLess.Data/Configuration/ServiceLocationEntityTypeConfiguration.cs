@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using QueueLess.Data.Models;
-
-namespace QueueLess.Data.Configuration
+﻿namespace QueueLess.Data.Configuration
 {
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    using QueueLess.Data.Models;
+
     public class ServiceLocationEntityTypeConfiguration : IEntityTypeConfiguration<ServiceLocation>
     {
         public void Configure(EntityTypeBuilder<ServiceLocation> builder)

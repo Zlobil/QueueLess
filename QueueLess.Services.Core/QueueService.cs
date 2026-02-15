@@ -17,9 +17,10 @@
             this.context = context;
         }
 
-        public async Task<IEnumerable<MyQueuesViewModel>> GetAllQueuesAsync()
+        public async Task<IEnumerable<MyQueuesViewModel>> GetAllQueuesAsync(string ownerId)
         {
             return await context.Queues
+                .Where(q => q.OwnerId == ownerId)
                 .OrderByDescending(q => q.CreatedOn)
                 .Select(q => new MyQueuesViewModel
                 {
@@ -51,7 +52,7 @@
         public async Task<bool> ServiceLocationExistsAsync(int id)
             => await context.ServiceLocations.AnyAsync(sl => sl.Id == id);
 
-        public async Task CreateQueueAsync(QueueCreateViewModel model)
+        public async Task CreateQueueAsync(QueueCreateViewModel model, string ownerId)
         {
             var queue = new Queue
             {
@@ -61,17 +62,18 @@
                 MaxWaitMinutes = model.MaxWaitMinutes,
                 IsOpen = model.IsOpen,
                 CreatedOn = DateTime.UtcNow,
-                ServiceLocationId = model.ServiceLocationId
+                ServiceLocationId = model.ServiceLocationId,
+                OwnerId = ownerId
             };
             context.Queues.Add(queue);
             await context.SaveChangesAsync();
         }
 
-        public async Task<QueueDetailsViewModel?> GetQueueDetailsAsync(int id, string? tab)
+        public async Task<QueueDetailsViewModel?> GetQueueDetailsAsync(int id, string ownerId, string? tab)
         {
             var queue = await context.Queues
                 .Include(q => q.QueueEntries)
-                .FirstOrDefaultAsync(q => q.Id == id);
+                .FirstOrDefaultAsync(q => q.Id == id && q.OwnerId == ownerId);
 
             if (queue == null) return null;
 
@@ -209,10 +211,10 @@
             return queueId;
         }
 
-        public async Task<QueueEditViewModel?> GetQueueForEditAsync(int id)
+        public async Task<QueueEditViewModel?> GetQueueForEditAsync(int id, string ownerId)
         {
             return await context.Queues
-                .Where(q => q.Id == id)
+                .Where(q => q.Id == id && q.OwnerId == ownerId)
                 .Select(q => new QueueEditViewModel
                 {
                     Id = q.Id,
@@ -225,9 +227,10 @@
                 .FirstOrDefaultAsync();
         }
 
-        public async Task EditQueueAsync(QueueEditViewModel model)
+        public async Task EditQueueAsync(QueueEditViewModel model, string ownerId)
         {
-            var queue = await context.Queues.FirstOrDefaultAsync(q => q.Id == model.Id);
+            var queue = await context.Queues
+                .FirstOrDefaultAsync(q => q.Id == model.Id && q.OwnerId == ownerId);
             if (queue == null) return;
 
             queue.Name = model.Name;
@@ -239,10 +242,10 @@
             await context.SaveChangesAsync();
         }
 
-        public async Task<QueueDeleteViewModel?> GetQueueForDeleteAsync(int id)
+        public async Task<QueueDeleteViewModel?> GetQueueForDeleteAsync(int id, string ownerId)
         {
             return await context.Queues
-                .Where(q => q.Id == id)
+                .Where(q => q.Id == id && q.OwnerId == ownerId)
                 .Select(q => new QueueDeleteViewModel
                 {
                     Id = q.Id,
@@ -252,9 +255,10 @@
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> DeleteQueueAsync(int id)
+        public async Task<bool> DeleteQueueAsync(int id, string ownerId)
         {
-            var queue = await context.Queues.FirstOrDefaultAsync(q => q.Id == id);
+            var queue = await context.Queues
+                .FirstOrDefaultAsync(q => q.Id == id && q.OwnerId == ownerId);
             if (queue == null) return false;
 
             bool hasEntries = await context.QueueEntries.AnyAsync(e => e.QueueId == id);

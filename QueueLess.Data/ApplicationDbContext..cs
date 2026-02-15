@@ -1,8 +1,8 @@
 ﻿namespace QueueLess.Data
 {
-    using Models;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
+    using QueueLess.Data.Models;
 
     public class ApplicationDbContext : IdentityDbContext
     {
